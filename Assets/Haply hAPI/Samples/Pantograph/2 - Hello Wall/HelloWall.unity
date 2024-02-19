@@ -161,7 +161,7 @@ MonoBehaviour:
   m_WorldSize: {x: 0.25, y: 0.15}
   m_EndEffectorRadius: 0.006
   m_WallStiffness: 8000
-  m_WallPosition: {x: 0, y: 0.15}
+  m_WallPosition: {x: 0, y: 0.1}
 --- !u!4 &6981364
 Transform:
   m_ObjectHideFlags: 0

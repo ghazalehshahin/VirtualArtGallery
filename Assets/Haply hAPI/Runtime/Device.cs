@@ -59,12 +59,12 @@ namespace Haply.hAPI
 			int j = 0;
 			for ( int i = 0; i < m_ActuatorsActive; i++ )
 			{
-				if ( m_Motors[i].actuator < actuator )
+				if ( m_Motors[i].ActuatorIndex < actuator )
 				{
 					j++;
 				}
 
-				if ( m_Motors[i].actuator == actuator )
+				if ( m_Motors[i].ActuatorIndex == actuator )
 				{
 					Debug.LogError( " actuator " + actuator + " has already been set" );
 					error = true;
@@ -326,11 +326,11 @@ namespace Haply.hAPI
 
 				for ( int i = 0; i < m_Motors.Length; i++ )
 				{
-					if ( m_Motors[i].actuator != (i + 1) )
+					if ( m_Motors[i].ActuatorIndex != (i + 1) )
 					{
 						Debug.LogWarning( "improper actuator indexing" );
-						m_Motors[i].actuator = ( i + 1 );
-						m_ActuatorPositions[m_Motors[i].port - 1] = (byte) m_Motors[i].actuator;
+						m_Motors[i].ActuatorIndex = ( i + 1 );
+						m_ActuatorPositions[m_Motors[i].Port - 1] = (byte) m_Motors[i].ActuatorIndex;
 					}
 				}
 
@@ -351,7 +351,7 @@ namespace Haply.hAPI
 				{
 					if ( m_ActuatorPositions[i] > 0 )
 					{
-						motorParams[j] = (byte) m_Motors[m_ActuatorPositions[i] - 1].direction;
+						motorParams[j] = (byte) m_Motors[m_ActuatorPositions[i] - 1].Direction;
 						j++;
 					}
 				}

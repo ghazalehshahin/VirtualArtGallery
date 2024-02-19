@@ -1,23 +1,21 @@
 ﻿using UnityEngine;
 using System.IO.Ports;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Haply.hAPI
 {
     public class Board : MonoBehaviour
     {
-        [SerializeField] protected int m_BaudRate;
-        [SerializeField] protected int m_SerialTimeout;
+        [SerializeField] protected int baudRate;
+        [SerializeField] protected int serialTimeout;
         [HideInInspector] public string targetPort;
 
         private SerialPort Port { get;  set; }
-        protected bool m_HasBeenInitialized;
+        private bool hasBeenInitialized;
 
         public virtual void Initialize ()
         {
-            if ( m_HasBeenInitialized )
+            if ( hasBeenInitialized )
             {
                 Debug.Log( "Board Already Initialized" );
                 return;
@@ -25,10 +23,10 @@ namespace Haply.hAPI
             
             try
             {
-                Port = new SerialPort( targetPort, m_BaudRate );
+                Port = new SerialPort( targetPort, baudRate );
 
-                Port.ReadTimeout = m_SerialTimeout;
-                Port.WriteTimeout = m_SerialTimeout;
+                Port.ReadTimeout = serialTimeout;
+                Port.WriteTimeout = serialTimeout;
                 Port.DtrEnable = true;
                 Port.RtsEnable = true;
 
@@ -37,7 +35,7 @@ namespace Haply.hAPI
                 Debug.Log( "Initialized Board" );
                 Debug.Log( Port.IsOpen );
 
-                m_HasBeenInitialized = true;
+                hasBeenInitialized = true;
             }
             catch ( Exception exception )
             {
@@ -49,7 +47,7 @@ namespace Haply.hAPI
         {
             Port.Close();
 
-            m_HasBeenInitialized = false;
+            hasBeenInitialized = false;
             Debug.Log( "Port closed" );
         }
 
@@ -60,7 +58,7 @@ namespace Haply.hAPI
         
         private void OnDestroy ()
         {
-            if ( m_HasBeenInitialized || (Port != null && Port.IsOpen) )
+            if ( hasBeenInitialized || (Port != null && Port.IsOpen) )
             {
                 ClosePort();
             }
