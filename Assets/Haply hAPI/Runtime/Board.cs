@@ -50,11 +50,6 @@ namespace Haply.hAPI
             hasBeenInitialized = false;
             Debug.Log( "Port closed" );
         }
-
-        public string [] GetAvailablePorts()
-        {
-            return SerialPort.GetPortNames();
-        }
         
         private void OnDestroy ()
         {
