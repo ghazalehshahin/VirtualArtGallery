@@ -283,7 +283,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: targetPort
-      value: COM1
+      value: COM7
       objectReference: {fileID: 0}
     - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_WindowsComPort
@@ -336,6 +336,10 @@ PrefabInstance:
     - target: {fileID: 793148749041878968, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_Name
       value: Pantograph
+      objectReference: {fileID: 0}
+    - target: {fileID: 793148749041878970, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: m_Distance
+      value: 0.038
       objectReference: {fileID: 0}
     - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_DeviceID
