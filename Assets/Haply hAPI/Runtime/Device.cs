@@ -5,112 +5,95 @@ namespace Haply.hAPI
 {
     public class Device : MonoBehaviour
     {
-        [SerializeField]
-        private byte m_DeviceID;
+        [SerializeField] private byte deviceID;
+        [SerializeField] private Mechanism mechanism;
+        [SerializeField] private Board boardLink;
 
-        [SerializeField]
-        private Mechanism m_Mechanism;
+        private byte commmunicationType;
+        private int actuatorsActive;
+        private int encodersActive;
+        private int sensorsActive;
+        private int pwmsActive;
 
-        private byte m_CommunicationType;
+        private Actuator[] motors = Array.Empty<Actuator>();
+        private Sensor[] encoders = Array.Empty<Sensor>();
+        private Sensor[] sensors = Array.Empty<Sensor>();
+        private Pwm[] pwms = Array.Empty<Pwm>();
 
-        private int m_ActuatorsActive;
-        private int m_EncodersActive;
-        private int m_SensorsActive;
-        private int m_PwmsActive;
-
-        private Actuator[] m_Motors = new Actuator[0];
-        private Sensor[] m_Encoders = new Sensor[0];
-        private Sensor[] m_Sensors = new Sensor[0];
-        private Pwm[] m_Pwms = new Pwm[0];
-
-        private byte[] m_ActuatorPositions = { 0, 0, 0, 0 };
-        private byte[] m_EncoderPositions = { 0, 0, 0, 0 };
-
-        [SerializeField]
-        private Board m_BoardLink;
-
-		#region device setup functions
-
-		// device setup functions
-		/**
-		 * add new actuator to platform
-		 *
-		 * @param    actuator index of actuator (and index of 1-4)
-		 * @param    roatation positive direction of actuator rotation
-		 * @param    port specified motor port to be used (motor ports 1-4 on the Haply board) 
-		 */
+        private byte[] actuatorPositions = { 0, 0, 0, 0 };
+        private byte[] encoderPositions = { 0, 0, 0, 0 };
+        
+		/// <summary>
+		/// add new actuator to platform
+		/// </summary>
+		/// <param name="actuator">index of actuator (an index of 1-4)</param>
+		/// <param name="rotation">positive direction of actuator rotation</param>
+		/// <param name="port">specified motor port to be used (motor ports 1-4 on the Haply board)</param>
 		public void AddActuator ( int actuator, int rotation, int port )
 		{
-
 			bool error = false;
 
-			if ( port < 1 || port > 4 )
+			if ( port is < 1 or > 4 )
 			{
 				Debug.LogError( " encoder port index out of bounds" );
 				error = true;
 			}
 
-			if ( actuator < 1 || actuator > 4 )
+			if ( actuator is < 1 or > 4 )
 			{
 				Debug.LogError( " encoder index out of bound!" );
 				error = true;
 			}
 
 			int j = 0;
-			for ( int i = 0; i < m_ActuatorsActive; i++ )
+			for ( int i = 0; i < actuatorsActive; i++ )
 			{
-				if ( m_Motors[i].ActuatorIndex < actuator )
+				if ( motors[i].ActuatorIndex < actuator )
 				{
 					j++;
 				}
 
-				if ( m_Motors[i].ActuatorIndex == actuator )
-				{
-					Debug.LogError( " actuator " + actuator + " has already been set" );
-					error = true;
-				}
+				if (motors[i].ActuatorIndex != actuator) continue;
+				Debug.LogError( " actuator " + actuator + " has already been set" );
+				error = true;
 			}
+			if (error) return;
+			
+			Actuator[] temp = new Actuator[actuatorsActive + 1];
 
-			if ( !error )
+			Array.Copy( motors, 0, temp, 0, motors.Length );
+
+			if ( j < actuatorsActive )
 			{
-				Actuator[] temp = new Actuator[m_ActuatorsActive + 1];
-
-				Array.Copy( m_Motors, 0, temp, 0, m_Motors.Length );
-
-				if ( j < m_ActuatorsActive )
-				{
-					Array.Copy( m_Motors, j, temp, j + 1, m_Motors.Length - j );
-				}
-
-				temp[j] = new Actuator( actuator, rotation, port );
-				ActuatorAssignment( actuator, port );
-
-				m_Motors = temp;
-				m_ActuatorsActive++;
+				Array.Copy( motors, j, temp, j + 1, motors.Length - j );
 			}
+
+			temp[j] = new Actuator( actuator, rotation, port );
+			ActuatorAssignment( actuator, port );
+
+			motors = temp;
+			actuatorsActive++;
 		}
-
-
-		/**
-		 * Add a new encoder to the platform
-		 *
-		 * @param    actuator index of actuator (an index of 1-4)
-		 * @param    positive direction of rotation detection
-		 * @param    offset encoder offset in degrees
-		 * @param    resolution encoder resolution
-		 * @param    port specified motor port to be used (motor ports 1-4 on the Haply board) 
-		 */
+		
+		/// <summary>
+		/// Add a new encoder to the platform
+		/// </summary>
+		/// <param name="encoder">index of actuator (an index of 1-4)</param>
+		/// <param name="rotation">positive direction of rotation detection</param>
+		/// <param name="offset">encoder offset in degrees</param>
+		/// <param name="resolution">encoder resolution</param>
+		/// <param name="port">specified motor port to be used</param>
 		public void AddEncoder ( int encoder, int rotation, float offset, float resolution, int port )
 		{
 			bool error = false;
 
-			if ( port < 1 || port > 4 )
+			if ( port is < 1 or > 4 )
 			{
 				Debug.LogError( " encoder port index out of bounds" );
 				error = true;
 			}
 
-			if ( encoder < 1 || encoder > 4 )
+			if ( encoder is < 1 or > 4 )
 			{
 				Debug.LogError( " encoder index out of bound!" );
 				error = true;
@@ -118,45 +101,40 @@ namespace Haply.hAPI
 
 			// determine index for copying
 			int j = 0;
-			for ( int i = 0; i < m_EncodersActive; i++ )
+			for ( int i = 0; i < encodersActive; i++ )
 			{
-				if ( m_Encoders[i].encoder < encoder )
+				if ( encoders[i].encoder < encoder )
 				{
 					j++;
 				}
 
-				if ( m_Encoders[i].encoder == encoder )
-				{
-					Debug.LogError( " encoder " + encoder + " has already been set" );
-					error = true;
-				}
+				if (encoders[i].encoder != encoder) continue;
+				Debug.LogError( " encoder " + encoder + " has already been set" );
+				error = true;
 			}
+			if (error) return;
+			
+			Sensor[] temp = new Sensor[encodersActive + 1];
 
-			if ( !error )
+			Array.Copy( encoders, 0, temp, 0, encoders.Length );
+
+			if ( j < encodersActive )
 			{
-				Sensor[] temp = new Sensor[m_EncodersActive + 1];
-
-				Array.Copy( m_Encoders, 0, temp, 0, m_Encoders.Length );
-
-				if ( j < m_EncodersActive )
-				{
-					Array.Copy( m_Encoders, j, temp, j + 1, m_Encoders.Length - j );
-				}
-
-				temp[j] = new Sensor( encoder, rotation, offset, resolution, port );
-				EncoderAssignment( encoder, port );
-
-				m_Encoders = temp;
-				m_EncodersActive++;
+				Array.Copy( encoders, j, temp, j + 1, encoders.Length - j );
 			}
+
+			temp[j] = new Sensor( encoder, rotation, offset, resolution, port );
+			EncoderAssignment( encoder, port );
+
+			encoders = temp;
+			encodersActive++;
 		}
 
 
-		/**
-		 * Add an analog sensor to platform
-		 *
-		 * @param    pin the analog pin on haply board to be used for sensor input (Ex: A0)
-		 */
+		/// <summary>
+		/// Add an analog sensor to platform
+		/// </summary>
+		/// <param name="pin">the analog pin on haply board to be used for sensor input (Ex: A0)</param>
 		public void AddAnalogSensor ( String pin )
 		{
 			// set sensor to be size zero
@@ -166,15 +144,13 @@ namespace Haply.hAPI
 			String number = pin.Substring( 1 );
 
 			int value = int.Parse( number );
-			value = value + 54;
+			value += 54;
 
-			for ( int i = 0; i < m_SensorsActive; i++ )
+			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				if ( value == m_Sensors[i].port )
-				{
-					Debug.LogError( " Analog pin: A" + (value - 54) + " has already been set" );
-					error = true;
-				}
+				if (value != sensors[i].port) continue;
+				Debug.LogError( " Analog pin: A" + (value - 54) + " has already been set" );
+				error = true;
 			}
 
 			if ( port != 'A' || value < 54 || value > 65 )
@@ -183,83 +159,76 @@ namespace Haply.hAPI
 				error = true;
 			}
 
-			if ( !error )
+			if (error) return;
+			Sensor[] temp = new Sensor[sensors.Length + 1]; 
+			Array.Copy( sensors, temp, sensors.Length );
+			temp[sensorsActive] = new Sensor
 			{
-				Sensor[] temp = new Sensor[m_Sensors.Length + 1]; 
-				Array.Copy( m_Sensors, temp, m_Sensors.Length );
-				temp[m_SensorsActive] = new Sensor();
-				temp[m_SensorsActive].port = ( value );
-				m_Sensors = temp;
-				m_SensorsActive++;
-			}
+				port = (value)
+			};
+			sensors = temp;
+			sensorsActive++;
 		}
 
 
-		/**
-		 * Add a PWM output pin to the platform
-		 *
-		 * @param		pin the pin on the haply board to use as the PWM output pin 
-		 */
+		/// <summary>
+		/// Add a PWM output pin to the platform
+		/// </summary>
+		/// <param name="pin">the pin on the haply board to use as the PWM output pin</param>
 		public void AddPwmPin ( int pin )
 		{
-
 			bool error = false;
-
-			for ( int i = 0; i < m_PwmsActive; i++ )
+			
+			for ( int i = 0; i < pwmsActive; i++ )
 			{
-				if ( pin == m_Pwms[i].pin )
-				{
-					Debug.LogError( " pwm pin: " + pin + " has already been set" );
-					error = true;
-				}
-			}
-
-			if ( pin < 0 || pin > 13 )
-			{
-				Debug.LogError( " outside pwn pin range" );
+				if (pin != pwms[i].pin) continue;
+				Debug.LogError( " pwm pin: " + pin + " has already been set" );
 				error = true;
 			}
 
-			if ( pin == 0 || pin == 1 )
+			switch (pin)
 			{
-				Debug.LogWarning( "0 and 1 are not pwm pins on Haply M3 or Haply original" );
+				case < 0:
+				case > 13:
+					Debug.LogError( " outside pwn pin range" );
+					error = true;
+					break;
+				case 0:
+				case 1:
+					Debug.LogWarning( "0 and 1 are not pwm pins on Haply M3 or Haply original" );
+					break;
 			}
 
-
-			if ( !error )
+			if (error) return;
+			Pwm[] temp = new Pwm[pwms.Length + 1];
+			Array.Copy( pwms, temp, pwms.Length );
+			temp[pwmsActive] = new Pwm
 			{
-				Pwm[] temp = new Pwm[m_Pwms.Length + 1];
-				Array.Copy( m_Pwms, temp, m_Pwms.Length );
-				temp[m_PwmsActive] = new Pwm();
-				temp[m_PwmsActive].pin = ( pin );
-				m_Pwms = temp;
-				m_PwmsActive++;
-			}
-
-
+				pin = (pin)
+			};
+			pwms = temp;
+			pwmsActive++;
 		}
 
-
-		/**
-		 * Set the device mechanism that is to be used
-		 *
-		 * @param    mechanisms new Mechanisms for use
-		 */
-		public void set_mechanism ( Mechanism mechanism )
+		/// <summary>
+		/// Set the device mechanism that is to be used
+		/// </summary>
+		/// <param name="mechanism">new Mechanisms for use</param>
+		public void SetMechanism ( Mechanism mechanism )
 		{
-			m_Mechanism = mechanism;
+			this.mechanism = mechanism;
 		}
 
-
-
-		/**
-		 * Gathers all encoder, sensor, pwm setup inforamation of all encoders, sensors, and pwm pins that are 
-		 * initialized and sequentialy formats the data based on specified sensor index positions to send over 
-		 * serial port interface for hardware device initialization
-		 */
+		/// <summary>
+		/// Gathers all encoder, sensor, pwm setup information
+		/// of all encoders, sensors, and pwm pins that are
+		/// initialized and sequentially formats the data based
+		/// on specified sensor index positions to send over
+		/// serial port interface for hardware device initialization 
+		/// </summary>
 		public void DeviceSetParameters ()
 		{
-			m_CommunicationType = 1;
+			commmunicationType = 1;
 
 			int control;
 
@@ -270,45 +239,43 @@ namespace Haply.hAPI
 			byte[] sensorParams;
 			byte[] pwmParams;
 
-			if ( m_EncodersActive > 0 )
+			if (encodersActive > 0)
 			{
-				encoderParams = new byte[m_EncodersActive + 1];
+				encoderParams = new byte[encodersActive + 1];
 				control = 0;
 
-				for ( int i = 0; i < m_Encoders.Length; i++ )
+				for ( int i = 0; i < encoders.Length; i++ )
 				{
-					if ( m_Encoders[i].encoder != (i + 1) )
+					if ( encoders[i].encoder != (i + 1) )
 					{
 						Debug.LogWarning( "improper encoder indexing" );
-						m_Encoders[i].encoder = ( i + 1 );
-						m_EncoderPositions[m_Encoders[i].port - 1] = (byte) m_Encoders[i].encoder;
+						encoders[i].encoder = ( i + 1 );
+						encoderPositions[encoders[i].port - 1] = (byte) encoders[i].encoder;
 					}
 				}
 
-				for ( int i = 0; i < m_EncoderPositions.Length; i++ )
+				foreach (byte t in encoderPositions)
 				{
-					control = control >> 1;
+					control >>= 1;
 
-					if ( m_EncoderPositions[i] > 0 )
+					if ( t > 0 )
 					{
-						control = control | 0x0008;
+						control |= 0x0008;
 					}
 				}
 
 				encoderParams[0] = (byte) control;
 
-				encoderParameters = new float[2 * m_EncodersActive];
+				encoderParameters = new float[2 * encodersActive];
 
 				int j = 0;
-				for ( int i = 0; i < m_EncoderPositions.Length; i++ )
+				foreach (byte t in encoderPositions)
 				{
-					if ( m_EncoderPositions[i] > 0 )
-					{
-						encoderParameters[2 * j] = m_Encoders[m_EncoderPositions[i] - 1].encoderOffset;
-						encoderParameters[2 * j + 1] = m_Encoders[m_EncoderPositions[i] - 1].encoderResolution;
-						j++;
-						encoderParams[j] = (byte) m_Encoders[m_EncoderPositions[i] - 1].direction;
-					}
+					if (t <= 0) continue;
+					encoderParameters[2 * j] = encoders[t - 1].encoderOffset;
+					encoderParameters[2 * j + 1] = encoders[t - 1].encoderResolution;
+					j++;
+					encoderParams[j] = (byte) encoders[t - 1].direction;
 				}
 			}
 			else
@@ -319,26 +286,26 @@ namespace Haply.hAPI
 			}
 
 
-			if ( m_ActuatorsActive > 0 )
+			if ( actuatorsActive > 0 )
 			{
-				motorParams = new byte[m_ActuatorsActive + 1];
+				motorParams = new byte[actuatorsActive + 1];
 				control = 0;
 
-				for ( int i = 0; i < m_Motors.Length; i++ )
+				for ( int i = 0; i < motors.Length; i++ )
 				{
-					if ( m_Motors[i].ActuatorIndex != (i + 1) )
+					if ( motors[i].ActuatorIndex != (i + 1) )
 					{
 						Debug.LogWarning( "improper actuator indexing" );
-						m_Motors[i].ActuatorIndex = ( i + 1 );
-						m_ActuatorPositions[m_Motors[i].Port - 1] = (byte) m_Motors[i].ActuatorIndex;
+						motors[i].ActuatorIndex = ( i + 1 );
+						actuatorPositions[motors[i].Port - 1] = (byte) motors[i].ActuatorIndex;
 					}
 				}
 
-				for ( int i = 0; i < m_ActuatorPositions.Length; i++ )
+				for ( int i = 0; i < actuatorPositions.Length; i++ )
 				{
 					control = control >> 1;
 
-					if ( m_ActuatorPositions[i] > 0 )
+					if ( actuatorPositions[i] > 0 )
 					{
 						control = control | 0x0008;
 					}
@@ -347,11 +314,11 @@ namespace Haply.hAPI
 				motorParams[0] = (byte) control;
 
 				int j = 1;
-				for ( int i = 0; i < m_ActuatorPositions.Length; i++ )
+				for ( int i = 0; i < actuatorPositions.Length; i++ )
 				{
-					if ( m_ActuatorPositions[i] > 0 )
+					if ( actuatorPositions[i] > 0 )
 					{
-						motorParams[j] = (byte) m_Motors[m_ActuatorPositions[i] - 1].Direction;
+						motorParams[j] = (byte) motors[actuatorPositions[i] - 1].Direction;
 						j++;
 					}
 				}
@@ -363,21 +330,21 @@ namespace Haply.hAPI
 			}
 
 
-			if ( m_SensorsActive > 0 )
+			if ( sensorsActive > 0 )
 			{
-				sensorParams = new byte[m_SensorsActive + 1];
-				sensorParams[0] = (byte) m_SensorsActive;
+				sensorParams = new byte[sensorsActive + 1];
+				sensorParams[0] = (byte) sensorsActive;
 
-				for ( int i = 0; i < m_SensorsActive; i++ )
+				for ( int i = 0; i < sensorsActive; i++ )
 				{
-					sensorParams[i + 1] = (byte) m_Sensors[i].port;
+					sensorParams[i + 1] = (byte) sensors[i].port;
 				}
 
 				Array.Sort( sensorParams );
 
-				for ( int i = 0; i < m_SensorsActive; i++ )
+				for ( int i = 0; i < sensorsActive; i++ )
 				{
-					m_Sensors[i].port = ( sensorParams[i + 1] );
+					sensors[i].port = ( sensorParams[i + 1] );
 				}
 
 			}
@@ -388,25 +355,25 @@ namespace Haply.hAPI
 			}
 
 
-			if ( m_PwmsActive > 0 )
+			if ( pwmsActive > 0 )
 			{
-				byte[] temp = new byte[m_PwmsActive];
+				byte[] temp = new byte[pwmsActive];
 
-				pwmParams = new byte[m_PwmsActive + 1];
-				pwmParams[0] = (byte) m_PwmsActive;
+				pwmParams = new byte[pwmsActive + 1];
+				pwmParams[0] = (byte) pwmsActive;
 
 
-				for ( int i = 0; i < m_PwmsActive; i++ )
+				for ( int i = 0; i < pwmsActive; i++ )
 				{
-					temp[i] = (byte) m_Pwms[i].pin;
+					temp[i] = (byte) pwms[i].pin;
 				}
 
 				Array.Sort( temp );
 
-				for ( int i = 0; i < m_PwmsActive; i++ )
+				for ( int i = 0; i < pwmsActive; i++ )
 				{
-					m_Pwms[i].pin = ( temp[i] );
-					pwmParams[i + 1] = (byte) m_Pwms[i].pin;
+					pwms[i].pin = ( temp[i] );
+					pwmParams[i + 1] = (byte) pwms[i].pin;
 				}
 
 			}
@@ -423,7 +390,7 @@ namespace Haply.hAPI
 			Array.Copy( sensorParams, 0, encMtrSenPwm, motorParams.Length + encoderParams.Length, sensorParams.Length );
 			Array.Copy( pwmParams, 0, encMtrSenPwm, motorParams.Length + encoderParams.Length + sensorParams.Length, pwmParams.Length );
 
-			m_BoardLink.Transmit( m_CommunicationType, m_DeviceID, encMtrSenPwm, encoderParameters );
+			boardLink.Transmit( commmunicationType, deviceID, encMtrSenPwm, encoderParameters );
 		}
 
 
@@ -432,12 +399,12 @@ namespace Haply.hAPI
 		 */
 		private void ActuatorAssignment ( int actuator, int port )
 		{
-			if ( m_ActuatorPositions[port - 1] > 0 )
+			if ( actuatorPositions[port - 1] > 0 )
 			{
 				Debug.LogWarning( "double check actuator port usage" );
 			}
 
-			m_ActuatorPositions[port - 1] = (byte) actuator;
+			actuatorPositions[port - 1] = (byte) actuator;
 		}
 
 
@@ -447,12 +414,12 @@ namespace Haply.hAPI
 		private void EncoderAssignment ( int encoder, int port )
 		{
 
-			if ( m_EncoderPositions[port - 1] > 0 )
+			if ( encoderPositions[port - 1] > 0 )
 			{
 				Debug.LogWarning( "double check encoder port usage" );
 			}
 
-			m_EncoderPositions[port - 1] = (byte) encoder;
+			encoderPositions[port - 1] = (byte) encoder;
 		}
 
 
@@ -464,23 +431,23 @@ namespace Haply.hAPI
 		 */
 		public void DeviceReadData ()
 		{
-			m_CommunicationType = 2;
+			commmunicationType = 2;
 			int dataCount = 0;
 
 			//float[] device_data = new float[sensorUse + encodersActive];
-			float[] device_data = m_BoardLink.Receive( m_CommunicationType, m_DeviceID, m_SensorsActive + m_EncodersActive );
+			float[] device_data = boardLink.Receive( commmunicationType, deviceID, sensorsActive + encodersActive );
 
-			for ( int i = 0; i < m_SensorsActive; i++ )
+			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				m_Sensors[i].value = ( device_data[dataCount] );
+				sensors[i].value = ( device_data[dataCount] );
 				dataCount++;
 			}
 
-			for ( int i = 0; i < m_EncoderPositions.Length; i++ )
+			for ( int i = 0; i < encoderPositions.Length; i++ )
 			{
-				if ( m_EncoderPositions[i] > 0 )
+				if ( encoderPositions[i] > 0 )
 				{
-					m_Encoders[m_EncoderPositions[i] - 1].value = ( device_data[dataCount] );
+					encoders[encoderPositions[i] - 1].value = ( device_data[dataCount] );
 					dataCount++;
 				}
 			}
@@ -493,27 +460,27 @@ namespace Haply.hAPI
 		 */
 		public void DeviceReadRequest ()
 		{
-			m_CommunicationType = 2;
-			byte[] pulses = new byte[m_PwmsActive];
-			float[] encoderRequest = new float[m_ActuatorsActive];
+			commmunicationType = 2;
+			byte[] pulses = new byte[pwmsActive];
+			float[] encoderRequest = new float[actuatorsActive];
 
-			for ( int i = 0; i < m_Pwms.Length; i++ )
+			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				pulses[i] = (byte) m_Pwms[i].value;
+				pulses[i] = (byte) pwms[i].value;
 			}
 
 			// think about this more encoder is detached from actuators
 			int j = 0;
-			for ( int i = 0; i < m_ActuatorPositions.Length; i++ )
+			for ( int i = 0; i < actuatorPositions.Length; i++ )
 			{
-				if ( m_ActuatorPositions[i] > 0 )
+				if ( actuatorPositions[i] > 0 )
 				{
 					encoderRequest[j] = 0;
 					j++;
 				}
 			}
 
-			m_BoardLink.Transmit( m_CommunicationType, m_DeviceID, pulses, encoderRequest );
+			boardLink.Transmit( commmunicationType, deviceID, pulses, encoderRequest );
 		}
 
 
@@ -523,26 +490,26 @@ namespace Haply.hAPI
 		 */
 		public void DeviceWriteTorques ()
 		{
-			m_CommunicationType = 2;
-			byte[] pulses = new byte[m_PwmsActive];
-			float[] deviceTorques = new float[m_ActuatorsActive];
+			commmunicationType = 2;
+			byte[] pulses = new byte[pwmsActive];
+			float[] deviceTorques = new float[actuatorsActive];
 
-			for ( int i = 0; i < m_Pwms.Length; i++ )
+			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				pulses[i] = (byte) m_Pwms[i].value;
+				pulses[i] = (byte) pwms[i].value;
 			}
 
 			int j = 0;
-			for ( int i = 0; i < m_ActuatorPositions.Length; i++ )
+			for ( int i = 0; i < actuatorPositions.Length; i++ )
 			{
-				if ( m_ActuatorPositions[i] > 0 )
+				if ( actuatorPositions[i] > 0 )
 				{
-					deviceTorques[j] = m_Motors[m_ActuatorPositions[i] - 1].Torque;
+					deviceTorques[j] = motors[actuatorPositions[i] - 1].Torque;
 					j++;
 				}
 			}
 
-			m_BoardLink.Transmit( m_CommunicationType, m_DeviceID, pulses, deviceTorques );
+			boardLink.Transmit( commmunicationType, deviceID, pulses, deviceTorques );
 		}
 
 
@@ -552,11 +519,11 @@ namespace Haply.hAPI
 		public void SetPwmPulse ( int pin, float pulse )
 		{
 
-			for ( int i = 0; i < m_Pwms.Length; i++ )
+			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				if ( m_Pwms[i].pin == pin )
+				if ( pwms[i].pin == pin )
 				{
-					m_Pwms[i].SetPulse( pulse );
+					pwms[i].SetPulse( pulse );
 				}
 			}
 		}
@@ -569,11 +536,11 @@ namespace Haply.hAPI
 		{
 			float pulse = 0;
 
-			for ( int i = 0; i < m_Pwms.Length; i++ )
+			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				if ( m_Pwms[i].pin == pin )
+				if ( pwms[i].pin == pin )
 				{
-					pulse = m_Pwms[i].get_pulse();
+					pulse = pwms[i].GetPulse();
 				}
 			}
 
@@ -587,14 +554,14 @@ namespace Haply.hAPI
 		 */
 		public void GetDeviceAngles ( ref float[] buffer )
 		{
-			if ( buffer == null || buffer.Length != m_EncodersActive )
+			if ( buffer == null || buffer.Length != encodersActive )
 			{
-				buffer = new float[m_EncodersActive];
+				buffer = new float[encodersActive];
 			}
 
-			for ( int i = 0; i < m_EncodersActive; i++ )
+			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = m_Encoders[i].value;
+				buffer[i] = encoders[i].value;
 			}
 		}
 
@@ -605,9 +572,9 @@ namespace Haply.hAPI
 		 */
 		public void GetDeviceAnglesUnchecked ( float[] buffer )
 		{
-			for ( int i = 0; i < m_EncodersActive; i++ )
+			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = m_Encoders[i].value;
+				buffer[i] = encoders[i].value;
 			}
 		}
 
@@ -618,14 +585,14 @@ namespace Haply.hAPI
 		*/
 		public void GetDeviceAngularVelocities ( ref float[] buffer )
 		{
-			if ( buffer == null || buffer.Length != m_EncodersActive )
+			if ( buffer == null || buffer.Length != encodersActive )
 			{
-				buffer = new float[m_EncodersActive];
+				buffer = new float[encodersActive];
 			}
 
-			for ( int i = 0; i < m_EncodersActive; i++ )
+			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = m_Encoders[i].velocity;
+				buffer[i] = encoders[i].velocity;
 			}
 		}
 
@@ -636,14 +603,14 @@ namespace Haply.hAPI
 		 */
 		public void GetSensorData ( ref float[] buffer )
 		{
-			if ( buffer == null || buffer.Length != m_SensorsActive )
+			if ( buffer == null || buffer.Length != sensorsActive )
             {
-				buffer = new float[m_SensorsActive];
+				buffer = new float[sensorsActive];
 			}
 
-			for ( int i = 0; i < m_SensorsActive; i++ )
+			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				buffer[i] = m_Sensors[i].value;
+				buffer[i] = sensors[i].value;
 			}
 		}
 
@@ -656,8 +623,8 @@ namespace Haply.hAPI
 		 */
 		public void GetDevicePosition ( float[] angles, float[] buffer )
 		{
-			m_Mechanism.ForwardKinematics( angles );
-			m_Mechanism.GetCoordinate( buffer );
+			mechanism.ForwardKinematics( angles );
+			mechanism.GetCoordinate( buffer );
 		}
 
 		/**
@@ -667,8 +634,8 @@ namespace Haply.hAPI
 		*/
 		public void GetDeviceVelocities ( float[] angularVelocities, float[] buffer )
 		{
-			m_Mechanism.VelocityCalculation( angularVelocities );
-			m_Mechanism.GetVelocity( buffer );
+			mechanism.VelocityCalculation( angularVelocities );
+			mechanism.GetVelocity( buffer );
 		}
 
 		/**
@@ -678,16 +645,15 @@ namespace Haply.hAPI
 		 * @param   forces forces that need to be generated
 		 * @param   buffer torques that need to be outputted to the physical device
 		 */
-		public void SetDeviceTorques ( float[] forces, float[] buffer )
+		public void SetDeviceTorques ( float[] forces, float[] torques )
 		{
-			m_Mechanism.TorqueCalculation( forces );
-			m_Mechanism.GetTorque( buffer );
+			mechanism.TorqueCalculation( forces );
+			mechanism.GetTorque( torques );
 
-			for ( int i = 0; i < m_ActuatorsActive; i++ )
+			for ( int i = 0; i < actuatorsActive; i++ )
 			{
-				m_Motors[i].Torque = buffer[i];
+				motors[i].Torque = torques[i];
 			}
 		}
-		#endregion
 	}
 }

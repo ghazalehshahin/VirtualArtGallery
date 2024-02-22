@@ -190,9 +190,7 @@ namespace Haply.hAPI.Samples
 
                     m_WidgetOne.GetDeviceAngles( ref m_Angles );
                     m_WidgetOne.GetDevicePosition( m_Angles, m_EndEffectorPosition );
-
-                    Debug.Log( $"m_WallPosition.y: {m_WallPosition.y}, m_EndEffectorPosition[1] + m_EndEffectorRadius: {m_EndEffectorPosition[1] + m_EndEffectorRadius}" );
-
+                    
                     m_WallForce = Vector2.zero;
                     m_WallPenetration = new Vector2( 0f, m_WallPosition.y - (m_EndEffectorPosition[1] + m_EndEffectorRadius) );
 

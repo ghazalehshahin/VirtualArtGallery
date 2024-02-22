@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Pantograph : Mechanism
 {
-    [SerializeField] private BoardTypes type;
+    [SerializeField] private BoardTypes boardType;
     
     private const float GAIN = 0.1f;
 
@@ -23,7 +23,7 @@ public class Pantograph : Mechanism
 
     private void Awake()
     {
-        distance = type == BoardTypes.Gen2 ? 0.0f : 0.038f;
+        distance = boardType == BoardTypes.Gen2 ? 0.0f : 0.038f;
     }
 
     public override void ForwardKinematics ( float[] angles )

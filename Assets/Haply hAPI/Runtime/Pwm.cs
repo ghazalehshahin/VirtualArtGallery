@@ -60,9 +60,9 @@ namespace Haply.hAPI
         /**
          * @return percent value of pwm signal	 
          */
-        public float get_pulse ()
+        public float GetPulse ()
         {
-            float percent = value * 100 / 255;
+            float percent = value * 100f / 255f;
 
             return percent;
         }
