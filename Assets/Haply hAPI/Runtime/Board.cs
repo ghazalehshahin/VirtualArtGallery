@@ -14,6 +14,14 @@ namespace Haply.hAPI
         private bool hasBeenInitialized;
         private SerialPort port;
         
+        private void OnDestroy ()
+        {
+            if ( hasBeenInitialized || port is { IsOpen: true } )
+            {
+                ClosePort();
+            }
+        }
+        
         /// <summary>
         /// Initializes the communication with a serial port, configuring its settings and attempting to open it.
         /// </summary>
@@ -39,9 +47,7 @@ namespace Haply.hAPI
 
                 port.Open();
 
-                Debug.Log("Initialized Board");
-                Debug.Log(port.IsOpen);
-
+                Debug.Log("Initialized Board: " + port.IsOpen);
                 hasBeenInitialized = true;
             }
             catch (Exception exception)
@@ -85,15 +91,6 @@ namespace Haply.hAPI
             hasBeenInitialized = false;
             Debug.Log( "Port closed" );
         }
-        
-        private void OnDestroy ()
-        {
-            if ( hasBeenInitialized || port is { IsOpen: true } )
-            {
-                ClosePort();
-            }
-        }
-
 
         /// <summary>
         /// Receives data from the serial port and formats data to return a float data array

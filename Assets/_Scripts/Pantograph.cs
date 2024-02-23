@@ -122,34 +122,39 @@ public class Pantograph : Mechanism
 
     public override void SetSensorData ( float[] data ) { }
 
-    public override void GetCoordinate ( float[] buffer )
+    public override float[] GetCoordinate ( float[] buffer )
     {
         buffer[0] = xE;
         buffer[1] = yE;
+        return buffer;
     }
 
-    public override void GetTorque ( float[] buffer )
+    public override float[] GetTorque ( float[] buffer )
     {
         buffer[0] = tau1;
         buffer[1] = tau2;
+        return buffer;
     }
 
-    public override void GetAngle ( float[] buffer )
+    public override float[] GetAngle ( float[] buffer )
     {
         buffer[0] = theta1;
         buffer[1] = theta2;
+        return buffer;
     }
 
-    public override void GetVelocity ( float[] buffer )
+    public override float[] GetVelocity ( float[] buffer )
     {
         buffer[0] = vxE;
         buffer[1] = vyE;
+        return buffer;
     }
 
-    public override void GetAngularVelocity ( float[] buffer )
+    public override float[] GetAngularVelocity ( float[] buffer )
     {
         buffer[0] = omega1;
         buffer[1] = omega2;
+        return buffer;
     }
 }
 
