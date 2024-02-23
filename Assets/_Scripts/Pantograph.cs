@@ -42,11 +42,11 @@ public class Pantograph : Mechanism
         float c2 = Mathf.Cos( theta2 );
         float s1 = Mathf.Sin( theta1 );
         float s2 = Mathf.Sin( theta2 );
-        float xA = l1 * c1;
+        float xA = l1 * c1 - d / 2f;
         float yA = l1 * s1;
-        float xB = d + l2 * c2;
-
+        float xB = l2 * c2 + d / 2f;
         float yB = l2 * s2;
+
         float hx = xB - xA;
         float hy = yB - yA;
         float hh = Mathf.Pow( hx, 2 ) + Mathf.Pow( hy, 2 );
@@ -65,8 +65,8 @@ public class Pantograph : Mechanism
         float xP = xA + h1X + lx;
         float yP = yA + h1Y + ly;
 
-        float phi1 = Mathf.Acos( (xP - l1 * c1) / ll1 );
-        float phi2 = Mathf.Acos( (xP - d - l2 * c2) / ll2 );
+        float phi1 = Mathf.Acos( (xP - d / 2f - l1 * c1) / ll1 );
+        float phi2 = Mathf.Acos( (xP + d / 2f - l2 * c2) / ll2 );
 
         float c11 = Mathf.Cos( phi1 );
         float s11 = Mathf.Sin( phi1 );
