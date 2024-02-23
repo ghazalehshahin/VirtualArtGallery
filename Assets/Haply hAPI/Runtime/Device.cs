@@ -223,6 +223,10 @@ namespace Haply.hAPI
 			mechanism = mech;
 		}
 		
+		/// <summary>
+		/// Loads device specific data from a scriptable object
+		/// </summary>
+		/// <param name="configData">DeviceConfig Sciprtable Object containing device data</param>
 		public void LoadConfig(DeviceConfig configData)
 		{
 			ActuatorRotations actuator = configData.actuatorRotations;
@@ -405,9 +409,6 @@ namespace Haply.hAPI
 
 			boardLink.Transmit( commmunicationType, deviceID, encMtrSenPwm, encoderParameters );
 		}
-		
-		
-		
 		
 		/// <summary>
 		/// Assigns an actuator to a specified port.
