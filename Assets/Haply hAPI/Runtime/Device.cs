@@ -109,12 +109,12 @@ namespace Haply.hAPI
 			int j = 0;
 			for ( int i = 0; i < encodersActive; i++ )
 			{
-				if ( encoders[i].encoder < encoder )
+				if ( encoders[i].Encoder < encoder )
 				{
 					j++;
 				}
 
-				if (encoders[i].encoder != encoder) continue;
+				if (encoders[i].Encoder != encoder) continue;
 				Debug.LogError( " encoder " + encoder + " has already been set" );
 				error = true;
 			}
@@ -154,7 +154,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				if (value != sensors[i].port) continue;
+				if (value != sensors[i].Port) continue;
 				Debug.LogError( " Analog pin: A" + (value - 54) + " has already been set" );
 				error = true;
 			}
@@ -170,7 +170,7 @@ namespace Haply.hAPI
 			Array.Copy( sensors, temp, sensors.Length );
 			temp[sensorsActive] = new Sensor
 			{
-				port = (value)
+				Port = (value)
 			};
 			sensors = temp;
 			sensorsActive++;
@@ -187,7 +187,7 @@ namespace Haply.hAPI
 			
 			for ( int i = 0; i < pwmsActive; i++ )
 			{
-				if (pin != pwms[i].pin) continue;
+				if (pin != pwms[i].Pin) continue;
 				Debug.LogError( " pwm pin: " + pin + " has already been set" );
 				error = true;
 			}
@@ -210,7 +210,7 @@ namespace Haply.hAPI
 			Array.Copy( pwms, temp, pwms.Length );
 			temp[pwmsActive] = new Pwm
 			{
-				pin = (pin)
+				Pin = (pin)
 			};
 			pwms = temp;
 			pwmsActive++;
@@ -252,11 +252,11 @@ namespace Haply.hAPI
 
 				for ( int i = 0; i < encoders.Length; i++ )
 				{
-					if ( encoders[i].encoder != (i + 1) )
+					if ( encoders[i].Encoder != (i + 1) )
 					{
 						Debug.LogWarning( "improper encoder indexing" );
-						encoders[i].encoder = ( i + 1 );
-						encoderPositions[encoders[i].port - 1] = (byte) encoders[i].encoder;
+						encoders[i].Encoder = ( i + 1 );
+						encoderPositions[encoders[i].Port - 1] = (byte) encoders[i].Encoder;
 					}
 				}
 
@@ -278,10 +278,10 @@ namespace Haply.hAPI
 				foreach (byte t in encoderPositions)
 				{
 					if (t <= 0) continue;
-					encoderParameters[2 * j] = encoders[t - 1].encoderOffset;
-					encoderParameters[2 * j + 1] = encoders[t - 1].encoderResolution;
+					encoderParameters[2 * j] = encoders[t - 1].EncoderOffset;
+					encoderParameters[2 * j + 1] = encoders[t - 1].EncoderResolution;
 					j++;
-					encoderParams[j] = (byte) encoders[t - 1].direction;
+					encoderParams[j] = (byte) encoders[t - 1].Direction;
 				}
 			}
 			else
@@ -343,14 +343,14 @@ namespace Haply.hAPI
 
 				for ( int i = 0; i < sensorsActive; i++ )
 				{
-					sensorParams[i + 1] = (byte) sensors[i].port;
+					sensorParams[i + 1] = (byte) sensors[i].Port;
 				}
 
 				Array.Sort( sensorParams );
 
 				for ( int i = 0; i < sensorsActive; i++ )
 				{
-					sensors[i].port = ( sensorParams[i + 1] );
+					sensors[i].Port = ( sensorParams[i + 1] );
 				}
 
 			}
@@ -371,15 +371,15 @@ namespace Haply.hAPI
 
 				for ( int i = 0; i < pwmsActive; i++ )
 				{
-					temp[i] = (byte) pwms[i].pin;
+					temp[i] = (byte) pwms[i].Pin;
 				}
 
 				Array.Sort( temp );
 
 				for ( int i = 0; i < pwmsActive; i++ )
 				{
-					pwms[i].pin = ( temp[i] );
-					pwmParams[i + 1] = (byte) pwms[i].pin;
+					pwms[i].Pin = ( temp[i] );
+					pwmParams[i + 1] = (byte) pwms[i].Pin;
 				}
 
 			}
@@ -444,14 +444,14 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				sensors[i].value = ( deviceData[dataCount] );
+				sensors[i].Value = ( deviceData[dataCount] );
 				dataCount++;
 			}
 
 			foreach (byte position in encoderPositions)
 			{
 				if (position <= 0) continue;
-				encoders[position - 1].value = ( deviceData[dataCount] );
+				encoders[position - 1].Value = ( deviceData[dataCount] );
 				dataCount++;
 			}
 		}
@@ -469,7 +469,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				pulses[i] = (byte) pwms[i].value;
+				pulses[i] = (byte) pwms[i].Value;
 			}
 
 			// think about this more encoder is detached from actuators
@@ -499,7 +499,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				pulses[i] = (byte) pwms[i].value;
+				pulses[i] = (byte) pwms[i].Value;
 			}
 
 			int j = 0;
@@ -524,7 +524,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				if ( pwms[i].pin == pin )
+				if ( pwms[i].Pin == pin )
 				{
 					pwms[i].SetPulse( pulse );
 				}
@@ -541,7 +541,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < pwms.Length; i++ )
 			{
-				if ( pwms[i].pin == pin )
+				if ( pwms[i].Pin == pin )
 				{
 					pulse = pwms[i].GetPulse();
 				}
@@ -564,7 +564,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = encoders[i].value;
+				buffer[i] = encoders[i].Value;
 			}
 		}
 
@@ -577,7 +577,7 @@ namespace Haply.hAPI
 		{
 			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = encoders[i].value;
+				buffer[i] = encoders[i].Value;
 			}
 		}
 
@@ -595,7 +595,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < encodersActive; i++ )
 			{
-				buffer[i] = encoders[i].velocity;
+				buffer[i] = encoders[i].Velocity;
 			}
 		}
 
@@ -613,7 +613,7 @@ namespace Haply.hAPI
 
 			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				buffer[i] = sensors[i].value;
+				buffer[i] = sensors[i].Value;
 			}
 		}
 
