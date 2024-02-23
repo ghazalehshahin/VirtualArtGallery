@@ -5,6 +5,7 @@ namespace Haply.hAPI
 {
     public class Device : MonoBehaviour
     {
+	    [SerializeField] private DeviceConfig configData;
         [SerializeField] private byte deviceID = 9;
         [SerializeField] private Mechanism mechanism;
         [SerializeField] private Board boardLink;
@@ -226,8 +227,7 @@ namespace Haply.hAPI
 		/// <summary>
 		/// Loads device specific data from a scriptable object
 		/// </summary>
-		/// <param name="configData">DeviceConfig Sciprtable Object containing device data</param>
-		public void LoadConfig(DeviceConfig configData)
+		public void LoadConfig()
 		{
 			ActuatorRotations actuator = configData.actuatorRotations;
 			EncoderRotations encoder = configData.encoderRotations;

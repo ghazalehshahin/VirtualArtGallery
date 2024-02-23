@@ -74,13 +74,9 @@ namespace Haply.hAPI.Samples
 
             Application.targetFrameRate = 60;
 
+            m_WidgetOne.LoadConfig();
+            
             m_HaplyBoard.Initialize();
-
-            m_WidgetOne.AddActuator(1, CW, 2);
-            m_WidgetOne.AddActuator(2, CW, 1);
-
-            m_WidgetOne.AddEncoder(1, CCW, 170, 4880, 2);
-            m_WidgetOne.AddEncoder(2, CCW, 10, 4880, 1); 
 
             m_WidgetOne.DeviceSetParameters();
 

@@ -12,8 +12,6 @@ namespace Haply.hAPI.Samples
     {
         public const int CW = 0;
         public const int CCW = 1;
-
-        [SerializeField] private DeviceConfig configData;
         
         [SerializeField]
         private Board haplyBoard;
@@ -80,7 +78,7 @@ namespace Haply.hAPI.Samples
         {
             Application.targetFrameRate = 60;
             
-            device.LoadConfig(configData);
+            device.LoadConfig();
 
             haplyBoard.Initialize();
 

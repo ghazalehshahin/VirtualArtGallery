@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16c69eebdb989164c9f28ee35ee988b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  configData: {fileID: 11400000, guid: 7f0d5a49d3156f742a8b3cfa19eec549, type: 2}
   haplyBoard: {fileID: 1339637035}
   device: {fileID: 1339637034}
   pantograph: {fileID: 1339637032}
@@ -284,7 +283,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: TargetPort
-      value: COM1
+      value: COM7
       objectReference: {fileID: 0}
     - target: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -334,6 +333,10 @@ PrefabInstance:
       propertyPath: boardType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: configData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f0d5a49d3156f742a8b3cfa19eec549, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
