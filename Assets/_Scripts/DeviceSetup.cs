@@ -120,6 +120,7 @@ namespace Haply.hAPI.Samples
         #region Drawing
         private void LateUpdate ()
         {
+            if (!m_HaplyBoard.HasBeenInitialized) return;
             UpdateEndEffector();
             m_Frames++;
         }

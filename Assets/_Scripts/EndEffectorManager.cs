@@ -26,6 +26,7 @@ public class EndEffectorManager : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!haplyBoard.HasBeenInitialized) return;
         SimulationStep();
     }
     

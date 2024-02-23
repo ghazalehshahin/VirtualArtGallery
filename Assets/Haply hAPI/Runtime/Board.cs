@@ -12,6 +12,9 @@ namespace Haply.hAPI
         [SerializeField] private int serialTimeout;
         
         private bool hasBeenInitialized;
+
+        public bool HasBeenInitialized => hasBeenInitialized;
+
         private SerialPort port;
         
         private void OnDestroy ()

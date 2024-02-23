@@ -136,6 +136,7 @@ namespace Haply.hAPI.Samples
         #region Drawing
         private void LateUpdate ()
         {
+            if (!haplyBoard.HasBeenInitialized) return;
             UpdateEndEffector();
             m_Frames++;
         }
