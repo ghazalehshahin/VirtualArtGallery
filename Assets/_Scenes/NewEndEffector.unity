@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 236153502}
   - component: {fileID: 236153503}
   m_Layer: 0
-  m_Name: Device Setup
+  m_Name: EndEffectorManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,8 +165,8 @@ Transform:
   m_Children:
   - {fileID: 355363260}
   - {fileID: 542865758}
-  - {fileID: 91105668}
   - {fileID: 1563744374}
+  - {fileID: 91105668}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &236153503
@@ -183,8 +183,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   device: {fileID: 1829191423}
   haplyBoard: {fileID: 1829191424}
+  pantograph: {fileID: 0}
   endEffectorRepresentation: {fileID: 91105667}
-  endEffectorActual: {fileID: 0}
+  movementScalingFactor: 24.9
+  endEffectorActual: {fileID: 1563744375}
 --- !u!4 &355363260 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
@@ -304,6 +306,14 @@ PrefabInstance:
       value: 0.6039216
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_Color.b
+      value: 0.4009434
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_Color.g
+      value: 0.4009434
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
@@ -321,7 +331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.47
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_LocalPosition.z
@@ -365,6 +375,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
   m_PrefabInstance: {fileID: 1563744373}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &1563744375 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+  m_PrefabInstance: {fileID: 1563744373}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1829191423 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
@@ -397,7 +412,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: TargetPort
-      value: COM1
+      value: COM7
       objectReference: {fileID: 0}
     - target: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -447,6 +462,10 @@ PrefabInstance:
       propertyPath: boardType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: configData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f0d5a49d3156f742a8b3cfa19eec549, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -486,7 +505,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3371868764636904774, guid: 87dce663a05873047b07a2a9caedd847, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3371868764636904774, guid: 87dce663a05873047b07a2a9caedd847, type: 3}
       propertyPath: m_LocalRotation.w
@@ -531,7 +550,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6157184309739352928, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_Name
-      value: End Effector Avatar
+      value: End Effector Representation
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352928, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_Color.g
+      value: 0.78079355
+      objectReference: {fileID: 0}
+    - target: {fileID: 6157184309739352929, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
+      propertyPath: m_Color.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_RootOrder
@@ -543,7 +578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 2.06
       objectReference: {fileID: 0}
     - target: {fileID: 6157184309739352934, guid: e2622cd89ea0a074186a0e6abd5dce28, type: 3}
       propertyPath: m_LocalPosition.z
