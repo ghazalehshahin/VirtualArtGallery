@@ -180,12 +180,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70c68f883c91b274c87dabcf914b725a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HaplyBoard: {fileID: 1829191424}
-  m_WidgetOne: {fileID: 1829191423}
-  m_Pantograph: {fileID: 1829191422}
-  m_Background: {fileID: 542865757}
-  m_EndEffectorAvatar: {fileID: 91105667}
-  m_WorldSize: {x: 11, y: 7}
+  haplyBoard: {fileID: 1829191424}
+  device: {fileID: 1829191423}
+  pantograph: {fileID: 1829191422}
+  background: {fileID: 542865757}
+  endEffectorAvatar: {fileID: 91105667}
+  worldSize: {x: 15, y: 10}
 --- !u!4 &355363260 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
@@ -334,6 +334,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 236153502}
     m_Modifications:
+    - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: TargetPort
+      value: COM7
+      objectReference: {fileID: 0}
     - target: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -378,6 +382,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pantograph
       objectReference: {fileID: 0}
+    - target: {fileID: 793148749041878970, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: boardType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: deviceID
       value: 9
@@ -386,6 +394,10 @@ PrefabInstance:
       propertyPath: mechanism
       value: 
       objectReference: {fileID: 1829191422}
+    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
+      propertyPath: configData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7f0d5a49d3156f742a8b3cfa19eec549, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

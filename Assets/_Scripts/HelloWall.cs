@@ -10,9 +10,6 @@ namespace Haply.hAPI.Samples
 {
     public class HelloWall : MonoBehaviour
     {
-        public const int CW = 0;
-        public const int CCW = 1;
-        
         [SerializeField]
         private Board haplyBoard;
 
@@ -24,51 +21,52 @@ namespace Haply.hAPI.Samples
 
         [Space]
         [SerializeField]
-        private SpriteRenderer m_Background;
+        private SpriteRenderer background;
 
         [SerializeField]
-        private SpriteRenderer m_EndEffectorAvatar;
+        private SpriteRenderer endEffectorAvatar;
 
         [SerializeField]
-        private SpriteRenderer m_WallAvatar;
+        private SpriteRenderer wallAvatar;
 
         [Space]
         [SerializeField]
-        private Vector2 m_WorldSize = new Vector2( 0.25f, 0.15f );
+        private Vector2 worldSize = new Vector2( 0.25f, 0.15f );
 
         [Space]
         [SerializeField]
-        private float m_EndEffectorRadius = 0.006f;
+        private float endEffectorRadius = 0.006f;
 
         [SerializeField]
-        private float m_WallStiffness = 450f;
+        private float wallStiffness = 450f;
 
         [SerializeField]
-        private Vector2 m_WallPosition = new Vector2( 0f, 0.07f );
+        private Vector2 wallPosition = new Vector2( 0f, 0.07f );
 
-        private Task m_SimulationLoopTask;
+        private Task simulationLoopTask;
 
-        private object m_ConcurrentDataLock;
+        private object concurrentDataLock;
 
-        private float[] m_Angles;
-        private float[] m_Torques;
+        private float[] angles;
+        private float[] torques;
 
-        private float[] m_EndEffectorPosition;
-        private float[] m_EndEffectorForce;
+        private float[] endEffectorPosition;
+        private float[] endEffectorForce;
         
-        private int m_Steps;
-        private int m_Frames;
+        private int steps;
+        private int frames;
 
-        private int m_DrawSteps;
-        private int m_DrawFrames;
+        private int drawSteps;
+        private int drawFrames;
 
-        private Vector2 m_WallForce = new Vector2( 0f, 0f );
-        private Vector2 m_WallPenetration = new Vector2( 0f, 0f );
+        private Vector2 wallForce = new Vector2( 0f, 0f );
+        private Vector2 wallPenetration = new Vector2( 0f, 0f );
 
         #region Setup
+        
         private void Awake ()
         {
-            m_ConcurrentDataLock = new object();
+            concurrentDataLock = new object();
             if (haplyBoard == null) FindObjectOfType<Board>();
             if (device == null) FindObjectOfType<Device>();
             if (pantograph == null) FindObjectOfType<Pantograph>();
@@ -84,28 +82,28 @@ namespace Haply.hAPI.Samples
 
             device.DeviceSetParameters();
 
-            m_Angles = new float[2];
-            m_Torques = new float[2];
+            angles = new float[2];
+            torques = new float[2];
 
-            m_EndEffectorPosition = new float[2];
-            m_EndEffectorForce = new float[2];
+            endEffectorPosition = new float[2];
+            endEffectorForce = new float[2];
             
-            m_SimulationLoopTask = new Task( SimulationLoop );
+            simulationLoopTask = new Task( SimulationLoop );
 
-            m_SimulationLoopTask.Start();
+            simulationLoopTask.Start();
 
             StartCoroutine( StepCountTimer() );
 
-            Camera.main.transform.position = new Vector3( 0f, -m_WorldSize.y / 2f, -10f );
-            m_Background.transform.position = new Vector3( 0f, -m_WorldSize.y / 2f - m_EndEffectorRadius, 1f );
-            m_Background.transform.localScale = new Vector3( m_WorldSize.x, m_WorldSize.y, 1f );
+            Camera.main.transform.position = new Vector3( 0f, -worldSize.y / 2f, -10f );
+            background.transform.position = new Vector3( 0f, -worldSize.y / 2f - endEffectorRadius, 1f );
+            background.transform.localScale = new Vector3( worldSize.x, worldSize.y, 1f );
 
-            m_EndEffectorAvatar.transform.localScale = new Vector3( m_EndEffectorRadius, m_EndEffectorRadius, 1f );
+            endEffectorAvatar.transform.localScale = new Vector3( endEffectorRadius, endEffectorRadius, 1f );
 
-            float[] wallPosition = DeviceToGraphics( new float[2] { m_WallPosition.x, m_WallPosition.y } );
+            float[] wallPosition = DeviceToGraphics( new float[2] { this.wallPosition.x, this.wallPosition.y } );
 
-            m_WallAvatar.transform.position = new Vector3( wallPosition[0], wallPosition[1], 0f );
-            m_WallAvatar.transform.localScale = new Vector3( m_WorldSize.x, m_EndEffectorRadius, 1f );
+            wallAvatar.transform.position = new Vector3( wallPosition[0], wallPosition[1], 0f );
+            wallAvatar.transform.localScale = new Vector3( worldSize.x, endEffectorRadius, 1f );
         }
 
         private IEnumerator StepCountTimer ()
@@ -114,20 +112,18 @@ namespace Haply.hAPI.Samples
             {
                 yield return new WaitForSecondsRealtime( 1f );
 
-                lock ( m_ConcurrentDataLock )
+                lock ( concurrentDataLock )
                 {
-                    m_DrawSteps = m_Steps;
-                    m_Steps = 0;
+                    drawSteps = steps;
+                    steps = 0;
                 }
 
-                m_DrawFrames = m_Frames;
-                m_Frames = 0;
+                drawFrames = frames;
+                frames = 0;
 
-                Debug.Log( $"Simulation: {m_DrawSteps} Hz,\t Rendering: {m_DrawFrames} Hz" );
+                Debug.Log( $"Simulation: {drawSteps} Hz,\t Rendering: {drawFrames} Hz" );
             }
         }
-
-        
         
         #endregion
 
@@ -136,14 +132,14 @@ namespace Haply.hAPI.Samples
         {
             if (!haplyBoard.HasBeenInitialized) return;
             UpdateEndEffector();
-            m_Frames++;
+            frames++;
         }
 
         private void OnGUI ()
         {
             GUI.color = Color.black;
-            GUILayout.Label( $" Simulation: {m_DrawSteps} Hz" );
-            GUILayout.Label( $" Rendering: {m_DrawFrames} Hz" );
+            GUILayout.Label( $" Simulation: {drawSteps} Hz" );
+            GUILayout.Label( $" Rendering: {drawFrames} Hz" );
             //GUILayout.Label( $" End Effector: {m_EndEffectorPosition[0]}" );
             //GUILayout.Label( $" Wall: {m_WallPosition.y}" );
             GUI.color = Color.white;
@@ -175,33 +171,33 @@ namespace Haply.hAPI.Samples
 
         private void SimulationStep ()
         {
-            lock ( m_ConcurrentDataLock )
+            lock ( concurrentDataLock )
             {
                 if ( haplyBoard.DataAvailable() )
                 {
                     device.DeviceReadData();
 
-                    device.GetDeviceAngles( ref m_Angles );
-                    device.GetDevicePosition( m_Angles, m_EndEffectorPosition );
+                    device.GetDeviceAngles( ref angles );
+                    device.GetDevicePosition( angles, endEffectorPosition );
                     
-                    m_WallForce = Vector2.zero;
-                    m_WallPenetration = new Vector2( 0f, m_WallPosition.y - (m_EndEffectorPosition[1] + m_EndEffectorRadius) );
+                    wallForce = Vector2.zero;
+                    wallPenetration = new Vector2( 0f, wallPosition.y - (endEffectorPosition[1] + endEffectorRadius) );
 
-                    if ( m_WallPenetration.y < 0f )
+                    if ( wallPenetration.y < 0f )
                     {
-                        m_WallForce += m_WallPenetration * -m_WallStiffness;
+                        wallForce += wallPenetration * -wallStiffness;
                     }
 
-                    m_EndEffectorForce[0] = -m_WallForce[0];
-                    m_EndEffectorForce[1] = -m_WallForce[1];
+                    endEffectorForce[0] = -wallForce[0];
+                    endEffectorForce[1] = -wallForce[1];
 
-                    m_EndEffectorPosition = DeviceToGraphics( m_EndEffectorPosition );
+                    endEffectorPosition = DeviceToGraphics( endEffectorPosition );
                 }
                 
-                device.SetDeviceTorques( m_EndEffectorForce, m_Torques );
+                device.SetDeviceTorques( endEffectorForce, torques );
                 device.DeviceWriteTorques();
 
-                m_Steps++;
+                steps++;
             }
         }
         #endregion
@@ -209,22 +205,23 @@ namespace Haply.hAPI.Samples
         #region Utilities
         private void UpdateEndEffector ()
         {
-            Vector3 position = m_EndEffectorAvatar.transform.position;
+            Transform endEffectorTransform = endEffectorAvatar.transform;
+            Vector3 position = endEffectorTransform.position;
 
-            lock ( m_ConcurrentDataLock )
+            lock ( concurrentDataLock )
             {
-                position.x = m_EndEffectorPosition[0];  // Don't need worldPixelWidth/2, because Unity coordinate space is zero'd with display center
-                position.y = m_EndEffectorPosition[1];  // Offset is arbitrary to keep end effector avatar inside of workspace
+                position.x = endEffectorPosition[0];  // Don't need worldPixelWidth/2, because Unity coordinate space is zero'd with display center
+                position.y = endEffectorPosition[1];  // Offset is arbitrary to keep end effector avatar inside of workspace
             }
 
             //position *= m_WorldSize.x / 0.24f;
 
-            m_EndEffectorAvatar.transform.position = position;
+            endEffectorTransform.position = position;
         }
 
         private float[] DeviceToGraphics ( float[] position )
         {
-            return new float[] { -position[0], -position[1] };
+            return new[] { -position[0], -position[1] };
         }
         #endregion
     }

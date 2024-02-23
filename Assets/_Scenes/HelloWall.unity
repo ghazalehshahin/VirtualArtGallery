@@ -155,13 +155,13 @@ MonoBehaviour:
   haplyBoard: {fileID: 1339637035}
   device: {fileID: 1339637034}
   pantograph: {fileID: 1339637032}
-  m_Background: {fileID: 1507388472}
-  m_EndEffectorAvatar: {fileID: 1853009196}
-  m_WallAvatar: {fileID: 1594177289}
-  m_WorldSize: {x: 0.25, y: 0.15}
-  m_EndEffectorRadius: 0.006
-  m_WallStiffness: 8000
-  m_WallPosition: {x: 0, y: 0.1}
+  background: {fileID: 1507388472}
+  endEffectorAvatar: {fileID: 1853009196}
+  wallAvatar: {fileID: 1594177289}
+  worldSize: {x: 0.25, y: 0.15}
+  endEffectorRadius: 0.006
+  wallStiffness: 8000
+  wallPosition: {x: 0, y: 0.1}
 --- !u!4 &6981364
 Transform:
   m_ObjectHideFlags: 0
