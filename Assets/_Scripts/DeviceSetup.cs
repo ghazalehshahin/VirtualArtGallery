@@ -42,9 +42,7 @@ namespace Haply.hAPI.Samples
 
         private float[] m_EndEffectorPosition;
         private float[] m_EndEffectorForce;
-
-        private bool m_RenderingForce;
-
+        
         private float m_PixelsPerMeter;
         private float m_WorldPixelWidth;
 
@@ -91,9 +89,7 @@ namespace Haply.hAPI.Samples
 
             m_EndEffectorPosition = new float[2];
             m_EndEffectorForce = new float[2];
-
-            m_RenderingForce = false;
-
+            
             m_SimulationLoopTask = new Task( SimulationLoop );
 
             m_SimulationLoopTask.Start();
@@ -164,8 +160,6 @@ namespace Haply.hAPI.Samples
         {
             lock ( m_ConcurrentDataLock )
             {
-                m_RenderingForce = true;
-
                 if ( m_HaplyBoard.DataAvailable() )
                 {
                     m_WidgetOne.DeviceReadData();
@@ -178,7 +172,6 @@ namespace Haply.hAPI.Samples
                 m_WidgetOne.SetDeviceTorques( m_EndEffectorForce, m_Torques );
                 m_WidgetOne.DeviceWriteTorques();
 
-                m_RenderingForce = false;
                 m_Steps++;
             }
         }

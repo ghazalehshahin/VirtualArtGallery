@@ -13,7 +13,7 @@ public class BoardCustomEditor : Editor
 
         if (availablePorts.Length > 0)
         {
-            portProperty = serializedObject.FindProperty("targetPort");
+            portProperty = serializedObject.FindProperty("TargetPort");
             int selectedPortIndex = GetSelectedPortIndex(availablePorts, portProperty.stringValue);
             int newPortIndex = EditorGUILayout.Popup("Active Ports", selectedPortIndex, availablePorts);
             if (newPortIndex != selectedPortIndex)

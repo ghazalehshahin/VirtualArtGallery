@@ -14,13 +14,13 @@ namespace Haply.hAPI.Samples
         public const int CCW = 1;
 
         [SerializeField]
-        private Board m_HaplyBoard;
+        private Board haplyBoard;
 
         [SerializeField]
-        private Device m_WidgetOne;
+        private Device device;
 
         [SerializeField]
-        private Pantograph m_Pantograph;
+        private Pantograph pantograph;
 
         [Space]
         [SerializeField]
@@ -55,9 +55,7 @@ namespace Haply.hAPI.Samples
 
         private float[] m_EndEffectorPosition;
         private float[] m_EndEffectorForce;
-
-        private bool m_RenderingForce;
-
+        
         private int m_Steps;
         private int m_Frames;
 
@@ -71,34 +69,31 @@ namespace Haply.hAPI.Samples
         private void Awake ()
         {
             m_ConcurrentDataLock = new object();
+            if (haplyBoard == null) FindObjectOfType<Board>();
+            if (device == null) FindObjectOfType<Device>();
+            if (pantograph == null) FindObjectOfType<Pantograph>();
         }
 
         private void Start ()
         {
-            Camera camera = Camera.main;
-
-            Debug.Log( $"Screen.width: {Screen.width}" );
-
             Application.targetFrameRate = 60;
 
-            m_HaplyBoard.Initialize();
+            haplyBoard.Initialize();
 
-            m_WidgetOne.AddActuator(1, CW, 2);
-            m_WidgetOne.AddActuator(2, CW, 1);
+            device.AddActuator(1, CW, 2);
+            device.AddActuator(2, CW, 1);
 
-            m_WidgetOne.AddEncoder(1, CCW, 170, 4880, 2);
-            m_WidgetOne.AddEncoder(2, CCW, 10, 4880, 1); 
+            device.AddEncoder(1, CCW, 170, 4880, 2);
+            device.AddEncoder(2, CCW, 10, 4880, 1); 
 
-            m_WidgetOne.DeviceSetParameters();
+            device.DeviceSetParameters();
 
             m_Angles = new float[2];
             m_Torques = new float[2];
 
             m_EndEffectorPosition = new float[2];
             m_EndEffectorForce = new float[2];
-
-            m_RenderingForce = false;
-
+            
             m_SimulationLoopTask = new Task( SimulationLoop );
 
             m_SimulationLoopTask.Start();
@@ -182,14 +177,12 @@ namespace Haply.hAPI.Samples
         {
             lock ( m_ConcurrentDataLock )
             {
-                m_RenderingForce = true;
-
-                if ( m_HaplyBoard.DataAvailable() )
+                if ( haplyBoard.DataAvailable() )
                 {
-                    m_WidgetOne.DeviceReadData();
+                    device.DeviceReadData();
 
-                    m_WidgetOne.GetDeviceAngles( ref m_Angles );
-                    m_WidgetOne.GetDevicePosition( m_Angles, m_EndEffectorPosition );
+                    device.GetDeviceAngles( ref m_Angles );
+                    device.GetDevicePosition( m_Angles, m_EndEffectorPosition );
                     
                     m_WallForce = Vector2.zero;
                     m_WallPenetration = new Vector2( 0f, m_WallPosition.y - (m_EndEffectorPosition[1] + m_EndEffectorRadius) );
@@ -205,10 +198,9 @@ namespace Haply.hAPI.Samples
                     m_EndEffectorPosition = DeviceToGraphics( m_EndEffectorPosition );
                 }
                 
-                m_WidgetOne.SetDeviceTorques( m_EndEffectorForce, m_Torques );
-                m_WidgetOne.DeviceWriteTorques();
+                device.SetDeviceTorques( m_EndEffectorForce, m_Torques );
+                device.DeviceWriteTorques();
 
-                m_RenderingForce = false;
                 m_Steps++;
             }
         }

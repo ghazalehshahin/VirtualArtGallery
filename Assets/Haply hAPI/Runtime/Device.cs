@@ -5,7 +5,7 @@ namespace Haply.hAPI
 {
     public class Device : MonoBehaviour
     {
-        [SerializeField] private byte deviceID;
+        [SerializeField] private byte deviceID = 9;
         [SerializeField] private Mechanism mechanism;
         [SerializeField] private Board boardLink;
 
@@ -22,8 +22,14 @@ namespace Haply.hAPI
 
         private byte[] actuatorPositions = { 0, 0, 0, 0 };
         private byte[] encoderPositions = { 0, 0, 0, 0 };
-        
-		/// <summary>
+
+        private void Awake()
+        {
+	        if(mechanism == null) mechanism = FindObjectOfType<Mechanism>();
+	        if(boardLink == null) boardLink = FindObjectOfType<Board>();
+        }
+
+        /// <summary>
 		/// add new actuator to platform
 		/// </summary>
 		/// <param name="actuator">index of actuator (an index of 1-4)</param>
@@ -434,22 +440,19 @@ namespace Haply.hAPI
 			commmunicationType = 2;
 			int dataCount = 0;
 
-			//float[] device_data = new float[sensorUse + encodersActive];
-			float[] device_data = boardLink.Receive( commmunicationType, deviceID, sensorsActive + encodersActive );
+			float[] deviceData = boardLink.Receive(deviceID, sensorsActive + encodersActive);
 
 			for ( int i = 0; i < sensorsActive; i++ )
 			{
-				sensors[i].value = ( device_data[dataCount] );
+				sensors[i].value = ( deviceData[dataCount] );
 				dataCount++;
 			}
 
-			for ( int i = 0; i < encoderPositions.Length; i++ )
+			foreach (byte position in encoderPositions)
 			{
-				if ( encoderPositions[i] > 0 )
-				{
-					encoders[encoderPositions[i] - 1].value = ( device_data[dataCount] );
-					dataCount++;
-				}
+				if (position <= 0) continue;
+				encoders[position - 1].value = ( deviceData[dataCount] );
+				dataCount++;
 			}
 		}
 
