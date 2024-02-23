@@ -281,22 +281,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6981364}
     m_Modifications:
-    - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: TargetPort
-      value: COM7
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: targetPort
-      value: COM7
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878596, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: m_WindowsComPort
-      value: COM3
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 793148749041878597, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -340,30 +324,6 @@ PrefabInstance:
     - target: {fileID: 793148749041878968, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
       propertyPath: m_Name
       value: Pantograph
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878970, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: boardType
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878970, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: m_Distance
-      value: 0.038
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: deviceID
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: boardLink
-      value: 
-      objectReference: {fileID: 1339637035}
-    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: mechanism
-      value: 
-      objectReference: {fileID: 1339637032}
-    - target: {fileID: 793148749041878971, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: m_DeviceID
-      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
