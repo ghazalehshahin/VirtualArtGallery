@@ -13,6 +13,8 @@ namespace Haply.hAPI.Samples
         public const int CW = 0;
         public const int CCW = 1;
 
+        [SerializeField] private DeviceConfig configData;
+        
         [SerializeField]
         private Board haplyBoard;
 
@@ -80,11 +82,7 @@ namespace Haply.hAPI.Samples
 
             haplyBoard.Initialize();
 
-            device.AddActuator(1, CW, 2);
-            device.AddActuator(2, CW, 1);
-
-            device.AddEncoder(1, CCW, 170, 4880, 2);
-            device.AddEncoder(2, CCW, 10, 4880, 1); 
+            LoadDeviceConfig();
 
             device.DeviceSetParameters();
 
@@ -130,6 +128,20 @@ namespace Haply.hAPI.Samples
                 Debug.Log( $"Simulation: {m_DrawSteps} Hz,\t Rendering: {m_DrawFrames} Hz" );
             }
         }
+
+        private void LoadDeviceConfig()
+        {
+            ActuatorRotations actuator = configData.actuatorRotations;
+            EncoderRotations encoder = configData.encoderRotations;
+            Offset offset = configData.offset;
+            int resolution = configData.resolution;
+            
+            device.AddActuator(1, (int)actuator.rotation1, 2);
+            device.AddActuator(2, (int)actuator.rotation2, 1);
+            device.AddEncoder(1, (int)encoder.rotation1, offset.left, resolution, 2);
+            device.AddEncoder(2, (int)encoder.rotation2, offset.right, resolution, 1); 
+        }
+        
         #endregion
 
         #region Drawing

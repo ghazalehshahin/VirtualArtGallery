@@ -14,17 +14,19 @@ public class BoardCustomEditor : Editor
         if (availablePorts.Length > 0)
         {
             portProperty = serializedObject.FindProperty("TargetPort");
+            serializedObject.Update();
             int selectedPortIndex = GetSelectedPortIndex(availablePorts, portProperty.stringValue);
             int newPortIndex = EditorGUILayout.Popup("Active Ports", selectedPortIndex, availablePorts);
-            if (newPortIndex != selectedPortIndex)
+            if (availablePorts[newPortIndex] != portProperty.stringValue)
             {
                 portProperty.stringValue = availablePorts[newPortIndex];
             }
+            serializedObject.ApplyModifiedProperties();
         }
         else
         {
             EditorGUILayout.HelpBox("No available devices detected, please enter port manually", MessageType.Info);
-            portProperty = serializedObject.FindProperty("targetPort");
+            portProperty = serializedObject.FindProperty("TargetPort");
             EditorGUILayout.PropertyField(portProperty, new GUIContent("Port"));
         }
         serializedObject.ApplyModifiedProperties();
