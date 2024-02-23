@@ -330,10 +330,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pantograph
       objectReference: {fileID: 0}
-    - target: {fileID: 793148749041878970, guid: 6c6bd26742403d2488568c08e934d62b, type: 3}
-      propertyPath: boardType
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
