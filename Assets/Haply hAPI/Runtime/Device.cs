@@ -20,8 +20,8 @@ namespace Haply.hAPI
         private Sensor[] sensors = Array.Empty<Sensor>();
         private Pwm[] pwms = Array.Empty<Pwm>();
 
-        private byte[] actuatorPositions = { 0, 0, 0, 0 };
-        private byte[] encoderPositions = { 0, 0, 0, 0 };
+        private readonly byte[] actuatorPositions = { 0, 0, 0, 0 };
+        private readonly byte[] encoderPositions = { 0, 0, 0, 0 };
 
         private void Awake()
         {
@@ -136,7 +136,6 @@ namespace Haply.hAPI
 			encodersActive++;
 		}
 
-
 		/// <summary>
 		/// Add an analog sensor to platform
 		/// </summary>
@@ -175,7 +174,6 @@ namespace Haply.hAPI
 			sensors = temp;
 			sensorsActive++;
 		}
-
 
 		/// <summary>
 		/// Add a PWM output pin to the platform
@@ -219,10 +217,10 @@ namespace Haply.hAPI
 		/// <summary>
 		/// Set the device mechanism that is to be used
 		/// </summary>
-		/// <param name="mechanism">new Mechanisms for use</param>
-		public void SetMechanism ( Mechanism mechanism )
+		/// <param name="mech">new Mechanisms for use</param>
+		public void SetMechanism ( Mechanism mech )
 		{
-			this.mechanism = mechanism;
+			mechanism = mech;
 		}
 
 		/// <summary>
@@ -288,7 +286,7 @@ namespace Haply.hAPI
 			{
 				encoderParams = new byte[1];
 				encoderParams[0] = 0;
-				encoderParameters = new float[0];
+				encoderParameters = Array.Empty<float>();
 			}
 
 
@@ -299,34 +297,30 @@ namespace Haply.hAPI
 
 				for ( int i = 0; i < motors.Length; i++ )
 				{
-					if ( motors[i].ActuatorIndex != (i + 1) )
-					{
-						Debug.LogWarning( "improper actuator indexing" );
-						motors[i].ActuatorIndex = ( i + 1 );
-						actuatorPositions[motors[i].Port - 1] = (byte) motors[i].ActuatorIndex;
-					}
+					if (motors[i].ActuatorIndex == (i + 1)) continue;
+					Debug.LogWarning( "improper actuator indexing" );
+					motors[i].ActuatorIndex = ( i + 1 );
+					actuatorPositions[motors[i].Port - 1] = (byte) motors[i].ActuatorIndex;
 				}
 
-				for ( int i = 0; i < actuatorPositions.Length; i++ )
+				foreach (byte t in actuatorPositions)
 				{
-					control = control >> 1;
+					control >>= 1;
 
-					if ( actuatorPositions[i] > 0 )
+					if ( t > 0 )
 					{
-						control = control | 0x0008;
+						control |= 0x0008;
 					}
 				}
 
 				motorParams[0] = (byte) control;
 
 				int j = 1;
-				for ( int i = 0; i < actuatorPositions.Length; i++ )
+				foreach (byte actuatorPosition in actuatorPositions)
 				{
-					if ( actuatorPositions[i] > 0 )
-					{
-						motorParams[j] = (byte) motors[actuatorPositions[i] - 1].Direction;
-						j++;
-					}
+					if (actuatorPosition <= 0) continue;
+					motorParams[j] = (byte) motors[actuatorPosition - 1].Direction;
+					j++;
 				}
 			}
 			else
@@ -398,11 +392,12 @@ namespace Haply.hAPI
 
 			boardLink.Transmit( commmunicationType, deviceID, encMtrSenPwm, encoderParameters );
 		}
-
-
-		/**
-		 * assigns actuator positions based on actuator port
-		 */
+		
+		/// <summary>
+		/// Assigns an actuator to a specified port.
+		/// </summary>
+		/// <param name="actuator">The identifier of the actuator to assign.</param>
+		/// <param name="port">The port number to which the actuator is to be assigned.</param>
 		private void ActuatorAssignment ( int actuator, int port )
 		{
 			if ( actuatorPositions[port - 1] > 0 )
@@ -413,13 +408,13 @@ namespace Haply.hAPI
 			actuatorPositions[port - 1] = (byte) actuator;
 		}
 
-
-		/**
-		 * assigns encoder positions based on actuator port
-		 */
+		/// <summary>
+		/// Assigns an encoder to a specified port.
+		/// </summary>
+		/// <param name="encoder">The identifier of the encoder to assign.</param>
+		/// <param name="port">The port number to which the encoder is to be assigned.</param>
 		private void EncoderAssignment ( int encoder, int port )
 		{
-
 			if ( encoderPositions[port - 1] > 0 )
 			{
 				Debug.LogWarning( "double check encoder port usage" );
@@ -428,13 +423,11 @@ namespace Haply.hAPI
 			encoderPositions[port - 1] = (byte) encoder;
 		}
 
-
-
-		// device communication functions
-		/**
-		 * Receives angle position and sensor inforamation from the serial port interface and updates each indexed encoder 
-		 * sensor to their respective received angle and any analog sensor that may be setup
-		 */
+		/// <summary>
+		/// Receives angle position and sensor information from the serial port interface
+		/// and updates each indexed encoder sensor to their respective received angle
+		/// and any analog sensor that may be setup
+		/// </summary>
 		public void DeviceReadData ()
 		{
 			commmunicationType = 2;
@@ -456,11 +449,10 @@ namespace Haply.hAPI
 			}
 		}
 
-
-		/**
-		 * Requests data from the hardware based on the initialized setup. function also sends a torque output 
-		 * command of zero torque for each actuator in use
-		 */
+		/// <summary>
+		/// Requests data from the hardware based on the initialized setup.
+		/// Function also sends a torque output command of zero torque for each actuator in use
+		/// </summary>
 		public void DeviceReadRequest ()
 		{
 			commmunicationType = 2;
@@ -472,25 +464,22 @@ namespace Haply.hAPI
 				pulses[i] = (byte) pwms[i].Value;
 			}
 
-			// think about this more encoder is detached from actuators
 			int j = 0;
-			for ( int i = 0; i < actuatorPositions.Length; i++ )
+			foreach (byte actuatorPosition in actuatorPositions)
 			{
-				if ( actuatorPositions[i] > 0 )
-				{
-					encoderRequest[j] = 0;
-					j++;
-				}
+				if (actuatorPosition <= 0) continue;
+				encoderRequest[j] = 0;
+				j++;
 			}
 
 			boardLink.Transmit( commmunicationType, deviceID, pulses, encoderRequest );
 		}
 
-
-		/**
-		 * Transmits specific torques that has been calculated and stored for each actuator over the serial
-		 * port interface, also transmits specified pwm outputs on pwm pins
-		 */
+		/// <summary>
+		/// Transmits specific torques that has been calculated and stored
+		/// for each actuator over the serial port interface.
+		/// Also transmits specified pwm outputs on pwm pins
+		/// </summary>
 		public void DeviceWriteTorques ()
 		{
 			commmunicationType = 2;
@@ -503,58 +492,56 @@ namespace Haply.hAPI
 			}
 
 			int j = 0;
-			for ( int i = 0; i < actuatorPositions.Length; i++ )
+			foreach (byte actuatorPosition in actuatorPositions)
 			{
-				if ( actuatorPositions[i] > 0 )
-				{
-					deviceTorques[j] = motors[actuatorPositions[i] - 1].Torque;
-					j++;
-				}
+				if (actuatorPosition <= 0) continue;
+				deviceTorques[j] = motors[actuatorPosition - 1].Torque;
+				j++;
 			}
 
 			boardLink.Transmit( commmunicationType, deviceID, pulses, deviceTorques );
 		}
-
-
-		/**
-		 * Set pulse of specified PWM pin
-		 */
+		
+		/// <summary>
+		/// Set pulse of specified PWM pin
+		/// </summary>
+		/// <param name="pin">target pin</param>
+		/// <param name="pulse">pulse value</param>
 		public void SetPwmPulse ( int pin, float pulse )
 		{
-
-			for ( int i = 0; i < pwms.Length; i++ )
+			foreach (Pwm pwm in pwms)
 			{
-				if ( pwms[i].Pin == pin )
+				if ( pwm.Pin == pin )
 				{
-					pwms[i].SetPulse( pulse );
+					pwm.SetPulse( pulse );
 				}
 			}
 		}
-
-
-		/**
-		 * Gets percent PWM pulse value of specified pin
-		 */
+		
+		/// <summary>
+		/// Gets percent PWM pulse value of specified pin
+		/// </summary>
+		/// <param name="pin">target pin</param>
+		/// <returns>pulse value</returns>
 		public float GetPwmPulse ( int pin )
 		{
 			float pulse = 0;
 
-			for ( int i = 0; i < pwms.Length; i++ )
+			foreach (Pwm pwm in pwms)
 			{
-				if ( pwms[i].Pin == pin )
+				if ( pwm.Pin == pin )
 				{
-					pulse = pwms[i].GetPulse();
+					pulse = pwm.GetPulse();
 				}
 			}
 
 			return pulse;
 		}
 
-		/**
-		 * Gathers current state of angles information from encoder objects
-		 *
-		 * @returns    most recent angles information from encoder objects
-		 */
+		/// <summary>
+		/// Gathers current state of angles information from encoder objects
+		/// </summary>
+		/// <param name="buffer">reference buffer for most recent angles information from encoder objects</param>
 		public void GetDeviceAngles ( ref float[] buffer )
 		{
 			if ( buffer == null || buffer.Length != encodersActive )
@@ -568,24 +555,22 @@ namespace Haply.hAPI
 			}
 		}
 
-		/**
-		 * Gathers current state of angles information from encoder objects
-		 *
-		 * @returns    most recent angles information from encoder objects
-		 */
-		public void GetDeviceAnglesUnchecked ( float[] buffer )
+		/// <summary>
+		/// Gathers current state of angles information from encoder objects
+		/// </summary>
+		/// <param name="buffer">buffer for most recent angles information from encoder objects</param>
+		public void GetDeviceAnglesUnchecked (ref float[] buffer )
 		{
 			for ( int i = 0; i < encodersActive; i++ )
 			{
 				buffer[i] = encoders[i].Value;
 			}
 		}
-
-		/**
-		* Gathers current state of the angular velocity information from encoder objects
-		*
-		* @returns	most recent angles information from encoder objects
-		*/
+		
+		/// <summary>
+		/// Gathers current state of the angular velocity information from encoder objects
+		/// </summary>
+		/// <param name="buffer">reference buffer for most recent angles information from encoder objects</param>
 		public void GetDeviceAngularVelocities ( ref float[] buffer )
 		{
 			if ( buffer == null || buffer.Length != encodersActive )
@@ -598,12 +583,11 @@ namespace Haply.hAPI
 				buffer[i] = encoders[i].Velocity;
 			}
 		}
-
-		/**
-		 * Gathers current data from sensor objects
-		 *
-		 * @returns    most recent analog sensor information from sensor objects
-		 */
+		
+		/// <summary>
+		/// Gathers current data from sensor objects
+		/// </summary>
+		/// <param name="buffer">reference buffer for most recent analog sensor information from sensor objects</param>
 		public void GetSensorData ( ref float[] buffer )
 		{
 			if ( buffer == null || buffer.Length != sensorsActive )
@@ -616,38 +600,35 @@ namespace Haply.hAPI
 				buffer[i] = sensors[i].Value;
 			}
 		}
-
-
-		/**
-		 * Performs physics calculations based on the given angle values
-		 *
-		 * @param      angles angles to be used for physics position calculation
-		 * @returns    end-effector coordinate position
-		 */
+		
+		/// <summary>
+		/// Performs physics calculations
+		/// and retrieves the current position data of a device based on the provided angles.
+		/// </summary>
+		/// <param name="angles">angles for physics calculations</param>
+		/// <param name="buffer">buffer to store end effector coordinate position</param>
 		public void GetDevicePosition ( float[] angles, float[] buffer )
 		{
 			mechanism.ForwardKinematics( angles );
 			mechanism.GetCoordinate( buffer );
 		}
 
-		/**
-		* Gathers current state of angles information from encoder objects
-		*
-		* @returns    most recent angles information from encoder objects
-		*/
+		/// <summary>
+		/// Gathers current state of angles information from encoder objects
+		/// </summary>
+		/// <param name="angularVelocities">angular velocities for velocity calculations</param>
+		/// <param name="buffer">Buffer to store calculated velocities of the end effector</param>
 		public void GetDeviceVelocities ( float[] angularVelocities, float[] buffer )
 		{
 			mechanism.VelocityCalculation( angularVelocities );
 			mechanism.GetVelocity( buffer );
 		}
 
-		/**
-		 * Calculates the needed output torques based on forces input and updates each initialized 
-		 * actuator respectively
-		 *
-		 * @param   forces forces that need to be generated
-		 * @param   buffer torques that need to be outputted to the physical device
-		 */
+		/// <summary>
+		/// Calculates and applies torques to the device's actuators based on the provided forces.
+		/// </summary>
+		/// <param name="forces">forces to calculate torques for each actuator</param>
+		/// <param name="torques">buffer to store the calculated torques for each actuator</param>
 		public void SetDeviceTorques ( float[] forces, float[] torques )
 		{
 			mechanism.TorqueCalculation( forces );
