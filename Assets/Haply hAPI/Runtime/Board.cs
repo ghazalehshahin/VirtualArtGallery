@@ -1,81 +1,72 @@
 ﻿using UnityEngine;
 using System.IO.Ports;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Haply.hAPI
 {
     public class Board : MonoBehaviour
     {
-        [SerializeField] protected int m_BaudRate;
-        [SerializeField] protected int m_SerialTimeout;
-        [HideInInspector] public string targetPort;
+        [HideInInspector] public string TargetPort;
+        
+        [SerializeField] private int baudRate;
+        [SerializeField] private int serialTimeout;
+        
+        private bool hasBeenInitialized;
 
-        private SerialPort Port { get;  set; }
-        protected bool m_HasBeenInitialized;
+        public bool HasBeenInitialized => hasBeenInitialized;
 
-        public virtual void Initialize ()
-        {
-            if ( m_HasBeenInitialized )
-            {
-                Debug.Log( "Board Already Initialized" );
-                return;
-            }
-            
-            try
-            {
-                Port = new SerialPort( targetPort, m_BaudRate );
-
-                Port.ReadTimeout = m_SerialTimeout;
-                Port.WriteTimeout = m_SerialTimeout;
-                Port.DtrEnable = true;
-                Port.RtsEnable = true;
-
-                Port.Open();
-
-                Debug.Log( "Initialized Board" );
-                Debug.Log( Port.IsOpen );
-
-                m_HasBeenInitialized = true;
-            }
-            catch ( Exception exception )
-            {
-                Debug.LogException( exception );
-            }
-        }
-
-        public virtual void ClosePort ()
-        {
-            Port.Close();
-
-            m_HasBeenInitialized = false;
-            Debug.Log( "Port closed" );
-        }
-
-        public string [] GetAvailablePorts()
-        {
-            return SerialPort.GetPortNames();
-        }
+        private SerialPort port;
         
         private void OnDestroy ()
         {
-            if ( m_HasBeenInitialized || (Port != null && Port.IsOpen) )
+            if ( hasBeenInitialized || port is { IsOpen: true } )
             {
                 ClosePort();
             }
         }
         
+        /// <summary>
+        /// Initializes the communication with a serial port, configuring its settings and attempting to open it.
+        /// </summary>
+        /// <remarks>
+        /// This method checks if the board has already been initialized before proceeding.
+        /// </remarks>
+        /// <exception cref="Exception">Thrown when an error occurs during initialization.</exception>
+        public void Initialize()
+        {
+            if (hasBeenInitialized)
+            {
+                Debug.Log( "Board Already Initialized" );
+                return;
+            }
+            try
+            {
+                port = new SerialPort(TargetPort, baudRate);
 
-        /**
-         * Formats and transmits data over the serial port
-         * 
-         * @param	 communicationType type of communication taking place
-         * @param	 deviceID ID of device transmitting the information
-         * @param	 bData byte inforamation to be transmitted
-         * @param	 fData float information to be transmitted
-         */
-        public virtual void Transmit ( byte communicationType, byte deviceID, byte[] bData, float[] fData )
+                port.ReadTimeout = serialTimeout;
+                port.WriteTimeout = serialTimeout;
+                port.DtrEnable = true;
+                port.RtsEnable = true;
+
+                port.Open();
+
+                Debug.Log("Initialized Board: " + port.IsOpen);
+                hasBeenInitialized = true;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+        }
+
+        /// <summary>
+        /// Formats and transmits data over the serial port
+        /// </summary>
+        /// <param name="communicationType">type of communication taking place</param>
+        /// <param name="deviceID">ID of device transmitting the information</param>
+        /// <param name="bData">byte information to be transmitted</param>
+        /// <param name="fData">float information to be transmitted</param>
+        public void Transmit ( byte communicationType, byte deviceID, byte[] bData, float[] fData )
         {
             byte[] outData = new byte[2 + bData.Length + 4 * fData.Length];
             byte[] segments = new byte[4];
@@ -86,25 +77,31 @@ namespace Haply.hAPI
             Array.Copy( bData, 0, outData, 2, bData.Length );
 
             int j = 2 + bData.Length;
-            for ( int i = 0; i < fData.Length; i++ )
+            foreach (float t in fData)
             {
-                segments = FloatToBytes( fData[i] );
+                segments = FloatToBytes( t );
                 Array.Copy( segments, 0, outData, j, 4 );
-                j = j + 4;
+                j += 4;
             }
 
-            Port.Write( outData, 0, outData.Length );
+            port.Write( outData, 0, outData.Length );
+        }
+        
+        private void ClosePort()
+        {
+            port.Close();
+
+            hasBeenInitialized = false;
+            Debug.Log( "Port closed" );
         }
 
-        /**
-         * Receives data from the serial port and formats data to return a float data array
-         * 
-         * @param	 type type of communication taking place
-         * @param	 deviceID ID of the device receiving the information
-         * @param	 expected number for floating point numbers that are expected
-         * @return	formatted float data array from the received data
-         */
-        public virtual float[] Receive ( byte communicationType, byte deviceID, int expected )
+        /// <summary>
+        /// Receives data from the serial port and formats data to return a float data array
+        /// </summary>
+        /// <param name="deviceID">ID of the device receiving the information</param>
+        /// <param name="expected">number for floating point numbers that are expected</param>
+        /// <returns>formatted float data array from the received data</returns>
+        public float[] Receive ( byte deviceID, int expected )
         {
             //Set_buffer(1 + 4 * expected);
 
@@ -113,11 +110,11 @@ namespace Haply.hAPI
             byte[] inData = new byte[1 + 4 * expected];
             float[] data = new float[expected];
 
-            Port.Read( inData, 0, inData.Length );
+            port.Read( inData, 0, inData.Length );
 
             if ( inData[0] != deviceID )
             {
-                //Debug.LogError("Error, another device expects this data!");
+                Debug.LogError("Error, another device expects this data!");
             }
 
             int j = 1;
@@ -132,73 +129,55 @@ namespace Haply.hAPI
             return data;
         }
 
-        /**
-         * @return   a boolean indicating if data is available from the serial port
-         */
-        public virtual bool DataAvailable ()
-        {
-            bool available = false;
+        /// <summary>
+        /// Checks if data is available from the board
+        /// </summary>
+        /// <returns>a boolean indicating if data is available from the serial port</returns>
+        public bool DataAvailable() => port.BytesToRead > 0;
 
-            if ( Port.BytesToRead > 0 )
-            {
-                available = true;
-            }
+        /// <summary>
+        /// Sends a reset command to perform a software reset of the Haply board
+        /// </summary>
+        public void ResetBoard () => Transmit( 0, 0, Array.Empty<byte>(), Array.Empty<float>() );
 
-            return available;
-        }
-
-        /**
-         * Sends a reset command to perform a software reset of the Haply board
-         *
-         */
-        private void ResetBoard ()
-        {
-            byte communicationType = 0;
-            byte deviceID = 0;
-            byte[] bData = new byte[0];
-            float[] fData = new float[0];
-
-            Transmit( communicationType, deviceID, bData, fData );
-        }
-
-        /**
-         * Set serial buffer length for receiving incoming data
-         *
-         * @param   length number of bytes expected in read buffer
-         */
+        /// <summary>
+        /// Set serial buffer length for receiving incoming data
+        /// </summary>
+        /// <param name="length">number of bytes expected in read buffer</param>
         private void SetBuffer ( int length )
         {
-            Port.ReadBufferSize = length;
+            port.ReadBufferSize = length;
         }
 
-        /**
-         * Translates a float point number to its raw binary format and stores it across four bytes
-         *
-         * @param	val floating point number
-         * @return   array of 4 bytes containing raw binary of floating point number
-         */
-        protected byte[] FloatToBytes ( float val )
+        /// <summary>
+        /// Translates a float point number to its raw binary format and stores it across four bytes
+        /// </summary>
+        /// <param name="val">floating point number</param>
+        /// <returns>array of 4 bytes containing raw binary of floating point number</returns>
+        private byte[] FloatToBytes ( float val )
         {
-            return BitConverter.GetBytes( val );
+            return BitConverter.GetBytes(val);
         }
 
-        /**
-         * Translates a binary of a float point to actual float point
-         *
-         * @param	segment array containing raw binary of floating point
-         * @return   translated floating point number
-         */
-        protected float BytesToFloat ( byte[] segment )
-        {
-            return BitConverter.ToSingle( segment, 0 );
-        }
+        /// <summary>
+        /// Translates a binary of a float point to actual float point
+        /// </summary>
+        /// <param name="segment">array containing raw binary of floating point</param>
+        /// <returns>translated floating point number</returns>
+        private float BytesToFloat (byte[] segment) => BitConverter.ToSingle(segment, 0);
 
-        public static byte[] SubArray ( byte[] data, int index, int length )
+        /// <summary>
+        /// Extracts a subarray of bytes from the given byte array, starting from the specified index 
+        /// and extending for the specified length.
+        /// </summary>
+        /// <param name="data">The byte array from which to extract the subarray.</param>
+        /// <param name="index">The zero-based starting index of the subarray in the source byte array.</param>
+        /// <param name="length">The number of elements in the subarray.</param>
+        /// <returns>A byte array containing the extracted subarray.</returns>
+        public static byte[] SubArray (byte[] data, int index, int length)
         {
             byte[] result = new byte[length];
-
-            Array.Copy( data, index, result, 0, length );
-
+            Array.Copy(data, index, result, 0, length);
             return result;
         }
     }

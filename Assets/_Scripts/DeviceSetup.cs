@@ -8,7 +8,7 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Haply.hAPI.Samples
 {
-    public class HelloWall : MonoBehaviour
+    public class DeviceSetup : MonoBehaviour
     {
         public const int CW = 0;
         public const int CCW = 1;
@@ -29,22 +29,9 @@ namespace Haply.hAPI.Samples
         [SerializeField]
         private SpriteRenderer m_EndEffectorAvatar;
 
-        [SerializeField]
-        private SpriteRenderer m_WallAvatar;
-
         [Space]
         [SerializeField]
-        private Vector2 m_WorldSize = new Vector2( 0.25f, 0.15f );
-
-        [Space]
-        [SerializeField]
-        private float m_EndEffectorRadius = 0.006f;
-
-        [SerializeField]
-        private float m_WallStiffness = 450f;
-
-        [SerializeField]
-        private Vector2 m_WallPosition = new Vector2( 0f, 0.07f );
+        private Vector2 m_WorldSize = new Vector2( 10f, 6.5f );
 
         private Task m_SimulationLoopTask;
 
@@ -55,17 +42,15 @@ namespace Haply.hAPI.Samples
 
         private float[] m_EndEffectorPosition;
         private float[] m_EndEffectorForce;
-
-        private bool m_RenderingForce;
+        
+        private float m_PixelsPerMeter;
+        private float m_WorldPixelWidth;
 
         private int m_Steps;
         private int m_Frames;
 
         private int m_DrawSteps;
         private int m_DrawFrames;
-
-        private Vector2 m_WallForce = new Vector2( 0f, 0f );
-        private Vector2 m_WallPenetration = new Vector2( 0f, 0f );
 
         #region Setup
         private void Awake ()
@@ -75,9 +60,17 @@ namespace Haply.hAPI.Samples
 
         private void Start ()
         {
-            Camera camera = Camera.main;
+            m_Background.transform.localScale = new Vector3( m_WorldSize.x, m_WorldSize.y, 1f );
+
+            Camera mainCam = Camera.main;
 
             Debug.Log( $"Screen.width: {Screen.width}" );
+
+            m_PixelsPerMeter = Screen.width / (mainCam.aspect * mainCam.orthographicSize * 2f);
+            m_WorldPixelWidth = m_PixelsPerMeter * m_WorldSize.x;
+
+            Debug.Log( $"{nameof( m_PixelsPerMeter )}: {m_PixelsPerMeter}" );
+            Debug.Log( $"{nameof( m_WorldPixelWidth )}: {m_WorldPixelWidth}" );
 
             Application.targetFrameRate = 60;
 
@@ -96,25 +89,12 @@ namespace Haply.hAPI.Samples
 
             m_EndEffectorPosition = new float[2];
             m_EndEffectorForce = new float[2];
-
-            m_RenderingForce = false;
-
+            
             m_SimulationLoopTask = new Task( SimulationLoop );
 
             m_SimulationLoopTask.Start();
 
             StartCoroutine( StepCountTimer() );
-
-            Camera.main.transform.position = new Vector3( 0f, -m_WorldSize.y / 2f, -10f );
-            m_Background.transform.position = new Vector3( 0f, -m_WorldSize.y / 2f - m_EndEffectorRadius, 1f );
-            m_Background.transform.localScale = new Vector3( m_WorldSize.x, m_WorldSize.y, 1f );
-
-            m_EndEffectorAvatar.transform.localScale = new Vector3( m_EndEffectorRadius, m_EndEffectorRadius, 1f );
-
-            float[] wallPosition = DeviceToGraphics( new float[2] { m_WallPosition.x, m_WallPosition.y } );
-
-            m_WallAvatar.transform.position = new Vector3( wallPosition[0], wallPosition[1], 0f );
-            m_WallAvatar.transform.localScale = new Vector3( m_WorldSize.x, m_EndEffectorRadius, 1f );
         }
 
         private IEnumerator StepCountTimer ()
@@ -140,6 +120,7 @@ namespace Haply.hAPI.Samples
         #region Drawing
         private void LateUpdate ()
         {
+            if (!m_HaplyBoard.HasBeenInitialized) return;
             UpdateEndEffector();
             m_Frames++;
         }
@@ -149,8 +130,6 @@ namespace Haply.hAPI.Samples
             GUI.color = Color.black;
             GUILayout.Label( $" Simulation: {m_DrawSteps} Hz" );
             GUILayout.Label( $" Rendering: {m_DrawFrames} Hz" );
-            //GUILayout.Label( $" End Effector: {m_EndEffectorPosition[0]}" );
-            //GUILayout.Label( $" Wall: {m_WallPosition.y}" );
             GUI.color = Color.white;
         }
         #endregion
@@ -182,35 +161,18 @@ namespace Haply.hAPI.Samples
         {
             lock ( m_ConcurrentDataLock )
             {
-                m_RenderingForce = true;
-
                 if ( m_HaplyBoard.DataAvailable() )
                 {
                     m_WidgetOne.DeviceReadData();
 
                     m_WidgetOne.GetDeviceAngles( ref m_Angles );
                     m_WidgetOne.GetDevicePosition( m_Angles, m_EndEffectorPosition );
-
-                    Debug.Log( $"m_WallPosition.y: {m_WallPosition.y}, m_EndEffectorPosition[1] + m_EndEffectorRadius: {m_EndEffectorPosition[1] + m_EndEffectorRadius}" );
-
-                    m_WallForce = Vector2.zero;
-                    m_WallPenetration = new Vector2( 0f, m_WallPosition.y - (m_EndEffectorPosition[1] + m_EndEffectorRadius) );
-
-                    if ( m_WallPenetration.y < 0f )
-                    {
-                        m_WallForce += m_WallPenetration * -m_WallStiffness;
-                    }
-
-                    m_EndEffectorForce[0] = -m_WallForce[0];
-                    m_EndEffectorForce[1] = -m_WallForce[1];
-
                     m_EndEffectorPosition = DeviceToGraphics( m_EndEffectorPosition );
                 }
-                
+
                 m_WidgetOne.SetDeviceTorques( m_EndEffectorForce, m_Torques );
                 m_WidgetOne.DeviceWriteTorques();
 
-                m_RenderingForce = false;
                 m_Steps++;
             }
         }
@@ -221,10 +183,15 @@ namespace Haply.hAPI.Samples
         {
             Vector3 position = m_EndEffectorAvatar.transform.position;
 
+            if (m_EndEffectorAvatar == null)
+            {
+                Debug.LogError("Is NULL!!!!");
+            }
+            
             lock ( m_ConcurrentDataLock )
             {
-                position.x = m_EndEffectorPosition[0];  // Don't need worldPixelWidth/2, because Unity coordinate space is zero'd with display center
-                position.y = m_EndEffectorPosition[1];  // Offset is arbitrary to keep end effector avatar inside of workspace
+                position.x = m_PixelsPerMeter * m_EndEffectorPosition[0];                               // Don't need worldPixelWidth/2, because Unity coordinate space is zero'd with display center
+                position.y = m_PixelsPerMeter * m_EndEffectorPosition[1] + m_WorldSize.y / 2 + 0.5f;    // Offset is arbitrary to keep end effector avatar inside of workspace
             }
 
             //position *= m_WorldSize.x / 0.24f;
