@@ -16,9 +16,9 @@ MonoBehaviour:
     rotation1: 1
     rotation2: 1
   actuatorRotations:
-    rotation1: 0
-    rotation2: 0
+    rotation1: 1
+    rotation2: 1
   offset:
-    left: 170
-    right: 10
+    left: 92
+    right: 88
   resolution: 4096
