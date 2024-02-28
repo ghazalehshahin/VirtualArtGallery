@@ -36,10 +36,11 @@ namespace Haply.hAPI.Samples
 
         private float[] angles;
         private float[] torques;
+        private float[] sensors;
 
         private float[] endEffectorPosition;
         private float[] endEffectorForce;
-        
+
         private float pixelsPerMeter;
         private float worldPixelWidth;
 
@@ -79,6 +80,7 @@ namespace Haply.hAPI.Samples
 
             angles = new float[2];
             torques = new float[2];
+            sensors = new float[1];
 
             endEffectorPosition = new float[2];
             endEffectorForce = new float[2];
@@ -123,6 +125,7 @@ namespace Haply.hAPI.Samples
             GUI.color = Color.black;
             GUILayout.Label( $" Simulation: {drawSteps} Hz" );
             GUILayout.Label( $" Rendering: {drawFrames} Hz" );
+            GUILayout.Label( $" Button: {sensors[0]}");
             GUI.color = Color.white;
         }
         #endregion
@@ -161,6 +164,8 @@ namespace Haply.hAPI.Samples
                     device.GetDeviceAngles( ref angles );
                     device.GetDevicePosition( angles, endEffectorPosition );
                     endEffectorPosition = DeviceToGraphics( endEffectorPosition );
+
+                    device.GetSensorData( ref sensors );
                 }
 
                 device.SetDeviceTorques( endEffectorForce, torques );

@@ -237,7 +237,8 @@ namespace Haply.hAPI
 			AddActuator(1, (int)actuator.rotation1, 2);
 			AddActuator(2, (int)actuator.rotation2, 1);
 			AddEncoder(1, (int)encoder.rotation1, offset.left, resolution, 2);
-			AddEncoder(2, (int)encoder.rotation2, offset.right, resolution, 1); 
+			AddEncoder(2, (int)encoder.rotation2, offset.right, resolution, 1);
+			AddAnalogSensor("A2");
 		}
 
 		/// <summary>
