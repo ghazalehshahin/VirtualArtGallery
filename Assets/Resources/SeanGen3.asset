@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330a1159aa294c339ea57615939bfcd5, type: 3}
   m_Name: SeanGen3
   m_EditorClassIdentifier: 
-  encoderRotations:
-    rotation1: 1
-    rotation2: 1
-  actuatorRotations:
-    rotation1: 1
-    rotation2: 1
-  offset:
-    left: 92
-    right: 88
-  resolution: 4096
+  EncoderRotations:
+    Rotation1: 1
+    Rotation2: 1
+  ActuatorRotations:
+    Rotation1: 1
+    Rotation2: 1
+  Offset:
+    Left: 92
+    Right: 880
+  Resolution: 4096

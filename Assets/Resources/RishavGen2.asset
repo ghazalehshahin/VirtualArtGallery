@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330a1159aa294c339ea57615939bfcd5, type: 3}
   m_Name: RishavGen2
   m_EditorClassIdentifier: 
-  encoderRotations:
-    rotation1: 1
-    rotation2: 0
-  actuatorRotations:
-    rotation1: 1
-    rotation2: 0
-  offset:
-    left: 240
-    right: -60
-  resolution: 10978
+  EncoderRotations:
+    Rotation1: 1
+    Rotation2: 0
+  ActuatorRotations:
+    Rotation1: 1
+    Rotation2: 0
+  Offset:
+    Left: 240
+    Right: -60
+  Resolution: 10978

@@ -1,11 +1,9 @@
 using System;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Threading.Tasks;
 using Haply.hAPI;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
 
 public class EndEffectorManager : MonoBehaviour
 {
@@ -21,6 +19,9 @@ public class EndEffectorManager : MonoBehaviour
     [SerializeField] private float derivativeGain;
     [SerializeField] private float derivativeSmoothing;
 
+    public UnityEvent ButtonPressed;
+    public UnityEvent ButtonReleased;
+    
     #endregion
 
     #region Member Vars
@@ -30,6 +31,7 @@ public class EndEffectorManager : MonoBehaviour
     private Vector2 representationToActual = Vector2.zero;
     private object concurrentDataLock;
     private bool isTouchingSurface;
+    private bool isButtonFlipped;
     private float[] angles;
     private float[] endEffectorPosition;
     private float[] endEffectorForce;
@@ -47,14 +49,11 @@ public class EndEffectorManager : MonoBehaviour
     #endregion
 
     #region Button
-
-
+    
     private bool lastButtonState;
     private bool buttonEventReady;
-    public int buttonDebounceThreshold;
+    private int buttonDebounceThreshold;
     private int buttonDebouceCounter;
-    public UnityEvent buttonPressed;
-    public UnityEvent buttonReleased;
 
     #endregion
 
@@ -86,12 +85,13 @@ public class EndEffectorManager : MonoBehaviour
         GetPosition();
         device.DeviceWriteTorques();
         initialOffset = endEffectorActual.transform.position;
-        
+
+        isButtonFlipped = device.CheckButtonFlipped();
         lastButtonState = false;
         sensors[0] = 0f;
         buttonDebouceCounter = 0;
-        if (buttonPressed == null) buttonPressed = new UnityEvent();
-        if (buttonReleased == null) buttonReleased = new UnityEvent();
+        ButtonPressed ??= new UnityEvent();
+        ButtonReleased ??= new UnityEvent();
 
         simulationLoopTask = new Task( SimulationLoop );
         simulationLoopTask.Start();
@@ -115,8 +115,8 @@ public class EndEffectorManager : MonoBehaviour
 
         if (buttonEventReady)
         {
-            if (lastButtonState) buttonPressed.Invoke();
-            else buttonReleased.Invoke();
+            if (lastButtonState) (isButtonFlipped ? ButtonReleased : ButtonPressed).Invoke();
+            else (isButtonFlipped ? ButtonPressed : ButtonReleased).Invoke();
             buttonEventReady = false;
         }
 
@@ -127,6 +127,10 @@ public class EndEffectorManager : MonoBehaviour
         }
         CalculateForces();
     }
+
+    private void OnDestroy() => FlushForces();
+
+    private void OnApplicationQuit() => FlushForces();
 
     #endregion
 
@@ -194,7 +198,6 @@ public class EndEffectorManager : MonoBehaviour
 
     private void SetCollisionState(bool state)
     {
-        Debug.Log("Touching surface: " + state);
         isTouchingSurface = state;
     }
     

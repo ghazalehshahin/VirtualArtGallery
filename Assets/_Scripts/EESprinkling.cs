@@ -1,24 +1,21 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Policy;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class EESprinkling : MonoBehaviour
 {
     [Space]
-    [SerializeField] Transform PlacingPosition;
+    [SerializeField] private Transform placingPosition;
+    [SerializeField] private Transform objectContainer;
+    
 
     [Space]
-    [SerializeField] GameObject prefabCircle;
-    [SerializeField] float placingTimeInterval = 0.5f;
-    [SerializeField] bool isColliderEnabledByDefault = false;
-    [SerializeField] Color placingColor = Color.gray;
+    [SerializeField] private GameObject prefabCircle;
+    [SerializeField] private float placingTimeInterval = 0.5f;
+    [SerializeField] private bool isColliderEnabledByDefault;
+    [SerializeField] private Color placingColor = Color.gray;
 
-    private bool isPlacing = false;
-    private float lastPlacedTime=0;
-
+    private bool isPlacing;
+    private float lastPlacedTime;
 
     private ArrayList freshlyPlaced;
     
@@ -35,14 +32,13 @@ public class EESprinkling : MonoBehaviour
     {
         // If the stylus button is pressed or spacebar pressed
         if ( isPlacing || Input.GetKey(KeyCode.Space)) {
-            Debug.Log(lastPlacedTime - Time.time);
             if (Time.time - lastPlacedTime > placingTimeInterval)
             {
                 lastPlacedTime = Time.time;
 
                 // Creating a circle
-                GameObject circle = Instantiate(prefabCircle, PlacingPosition.position, Quaternion.identity);
-                circle.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.1f, 2f);
+                GameObject circle = Instantiate(prefabCircle, placingPosition.position, Quaternion.identity, objectContainer);
+                circle.transform.localScale = Vector3.one * Random.Range(0.1f, 2f);
                 circle.GetComponent<CircleCollider2D>().enabled = isColliderEnabledByDefault;
                 circle.GetComponent<SpriteRenderer>().color = placingColor;
 
@@ -66,15 +62,6 @@ public class EESprinkling : MonoBehaviour
         
     }
 
-
-    public void startPlacing()
-    {
-        isPlacing = true;
-    }
-
-    public void stopPlacing()
-    {
-        isPlacing = false;
-    }
+    public void PlaceCircles(bool state) => isPlacing = state;
 
 }
