@@ -103,8 +103,8 @@ public class Pantograph : Mechanism
         tau1 = jT11 * fX + jT12 * fy;
         tau2 = jT21 * fX + jT22 * fy;
 
-        tau1 = tau1 * GAIN;
-        tau2 = tau2 * GAIN;
+        tau1 *= GAIN;
+        tau2 *= GAIN;
     }
 
     public override void ForceCalculation () { }
