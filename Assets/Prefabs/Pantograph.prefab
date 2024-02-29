@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caae2930a4d29934f99cada4224e6f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetPort: COM00
+  TargetPort: COM1
   baudRate: 0
   serialTimeout: 0
 --- !u!114 &793148749041878971
@@ -61,6 +61,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b39ad931833d8264c9a438d7acb1f640, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  configData: {fileID: 0}
   deviceID: 9
   mechanism: {fileID: 793148749041878970}
   boardLink: {fileID: 793148749041878596}

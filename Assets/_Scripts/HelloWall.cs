@@ -49,6 +49,7 @@ namespace Haply.hAPI.Samples
 
         private float[] angles;
         private float[] torques;
+        private float[] sensors = new float[1];
 
         private float[] endEffectorPosition;
         private float[] endEffectorForce;
@@ -140,6 +141,7 @@ namespace Haply.hAPI.Samples
             GUI.color = Color.black;
             GUILayout.Label( $" Simulation: {drawSteps} Hz" );
             GUILayout.Label( $" Rendering: {drawFrames} Hz" );
+            GUILayout.Label($" Button: {sensors[0]}");
             //GUILayout.Label( $" End Effector: {m_EndEffectorPosition[0]}" );
             //GUILayout.Label( $" Wall: {m_WallPosition.y}" );
             GUI.color = Color.white;
@@ -179,7 +181,8 @@ namespace Haply.hAPI.Samples
 
                     device.GetDeviceAngles( ref angles );
                     device.GetDevicePosition( angles, endEffectorPosition );
-                    
+                    device.GetSensorData(ref sensors);
+
                     wallForce = Vector2.zero;
                     wallPenetration = new Vector2( 0f, wallPosition.y - (endEffectorPosition[1] + endEffectorRadius) );
 
