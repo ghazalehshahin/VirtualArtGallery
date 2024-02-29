@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Threading.Tasks;
 using Haply.hAPI;
 using UnityEngine;
+using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
 
 public class EndEffectorManager : MonoBehaviour
@@ -32,6 +34,7 @@ public class EndEffectorManager : MonoBehaviour
     private float[] endEffectorPosition;
     private float[] endEffectorForce;
     private float[] torques;
+    private float[] sensors;
     private float distX;
     private float distY;
     private float buffX;
@@ -42,7 +45,19 @@ public class EndEffectorManager : MonoBehaviour
     private float oldY;
 
     #endregion
-    
+
+    #region Button
+
+
+    private bool lastButtonState;
+    private bool buttonEventReady;
+    public int buttonDebounceThreshold;
+    private int buttonDebouceCounter;
+    public UnityEvent buttonPressed;
+    public UnityEvent buttonReleased;
+
+    #endregion
+
     #region UnityFunctions
 
     private void Awake()
@@ -65,12 +80,19 @@ public class EndEffectorManager : MonoBehaviour
         device.DeviceSetParameters();
         angles = new float[2];
         torques = new float[2];
+        sensors = new float[1];
         endEffectorPosition = new float[2];
         endEffectorForce = new float[2];
         GetPosition();
         device.DeviceWriteTorques();
         initialOffset = endEffectorActual.transform.position;
         
+        lastButtonState = false;
+        sensors[0] = 0f;
+        buttonDebouceCounter = 0;
+        if (buttonPressed == null) buttonPressed = new UnityEvent();
+        if (buttonReleased == null) buttonReleased = new UnityEvent();
+
         simulationLoopTask = new Task( SimulationLoop );
         simulationLoopTask.Start();
 
@@ -90,6 +112,14 @@ public class EndEffectorManager : MonoBehaviour
     {
         if (!haplyBoard.HasBeenInitialized) return;
         UpdateEndEffectorActual();
+
+        if (buttonEventReady)
+        {
+            if (lastButtonState) buttonPressed.Invoke();
+            else buttonReleased.Invoke();
+            buttonEventReady = false;
+        }
+
         if (!isTouchingSurface)
         {
             FlushForces();
@@ -126,6 +156,7 @@ public class EndEffectorManager : MonoBehaviour
         lock (concurrentDataLock)
         {
             GetPosition();
+            DoButton();
             device.SetDeviceTorques(endEffectorForce, torques );
             device.DeviceWriteTorques();
         }
@@ -139,7 +170,24 @@ public class EndEffectorManager : MonoBehaviour
         device.GetDevicePosition(angles, endEffectorPosition);
         endEffectorPosition = DeviceToGraphics(endEffectorPosition);
     }
-    
+
+    private void DoButton()
+    {
+        if (haplyBoard.DataAvailable()) device.GetSensorData(ref sensors);
+        bool buttonState = sensors[0] > 500;
+
+        if (buttonState != lastButtonState)
+        {
+            if (buttonDebouceCounter > buttonDebounceThreshold)
+            {
+                lastButtonState = buttonState;
+                buttonEventReady = true;
+            }
+            else buttonDebouceCounter++;
+        }
+        else buttonDebouceCounter = 0;
+    }
+
     #endregion
 
     #region ForceFeedback
