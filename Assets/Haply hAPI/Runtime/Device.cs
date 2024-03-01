@@ -30,13 +30,15 @@ namespace Haply.hAPI
 	        if(boardLink == null) boardLink = FindObjectOfType<Board>();
         }
 
+        public bool CheckButtonFlipped() => configData.FlippedStylusButton;
+
         /// <summary>
 		/// add new actuator to platform
 		/// </summary>
 		/// <param name="actuator">index of actuator (an index of 1-4)</param>
 		/// <param name="rotation">positive direction of actuator rotation</param>
 		/// <param name="port">specified motor port to be used (motor ports 1-4 on the Haply board)</param>
-		public void AddActuator ( int actuator, int rotation, int port )
+		private void AddActuator ( int actuator, int rotation, int port )
 		{
 			bool error = false;
 
@@ -90,7 +92,7 @@ namespace Haply.hAPI
 		/// <param name="offset">encoder offset in degrees</param>
 		/// <param name="resolution">encoder resolution</param>
 		/// <param name="port">specified motor port to be used</param>
-		public void AddEncoder ( int encoder, int rotation, float offset, float resolution, int port )
+		private void AddEncoder ( int encoder, int rotation, float offset, float resolution, int port )
 		{
 			bool error = false;
 
@@ -141,7 +143,7 @@ namespace Haply.hAPI
 		/// Add an analog sensor to platform
 		/// </summary>
 		/// <param name="pin">the analog pin on haply board to be used for sensor input (Ex: A0)</param>
-		public void AddAnalogSensor ( String pin )
+		private void AddAnalogSensor ( String pin )
 		{
 			// set sensor to be size zero
 			bool error = false;
@@ -229,15 +231,15 @@ namespace Haply.hAPI
 		/// </summary>
 		public void LoadConfig()
 		{
-			ActuatorRotations actuator = configData.actuatorRotations;
-			EncoderRotations encoder = configData.encoderRotations;
-			Offset offset = configData.offset;
-			int resolution = configData.resolution;
+			ActuatorRotations actuator = configData.ActuatorRotations;
+			EncoderRotations encoder = configData.EncoderRotations;
+			Offset offset = configData.Offset;
+			int resolution = configData.Resolution;
             
-			AddActuator(1, (int)actuator.rotation1, 2);
-			AddActuator(2, (int)actuator.rotation2, 1);
-			AddEncoder(1, (int)encoder.rotation1, offset.left, resolution, 2);
-			AddEncoder(2, (int)encoder.rotation2, offset.right, resolution, 1);
+			AddActuator(1, (int)actuator.Rotation1, 2);
+			AddActuator(2, (int)actuator.Rotation2, 1);
+			AddEncoder(1, (int)encoder.Rotation1, offset.Left, resolution, 2);
+			AddEncoder(2, (int)encoder.Rotation2, offset.Right, resolution, 1);
 			AddAnalogSensor("A2");
 		}
 

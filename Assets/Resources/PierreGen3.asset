@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330a1159aa294c339ea57615939bfcd5, type: 3}
   m_Name: PierreGen3
   m_EditorClassIdentifier: 
-  encoderRotations:
-    rotation1: 0
-    rotation2: 0
-  actuatorRotations:
-    rotation1: 0
-    rotation2: 0
-  offset:
-    left: 170
-    right: 10
-  resolution: 4096
+  EncoderRotations:
+    Rotation1: 0
+    Rotation2: 0
+  ActuatorRotations:
+    Rotation1: 0
+    Rotation2: 0
+  Offset:
+    Left: 170
+    Right: 10
+  Resolution: 4096
