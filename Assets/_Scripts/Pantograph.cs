@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Pantograph : Mechanism
 {
-    [SerializeField] private BoardTypes boardType;
-    
     private const float GAIN = 0.1f;
 
     private float length1 = 0.07f;
@@ -21,7 +19,7 @@ public class Pantograph : Mechanism
 
     private float jT11, jT12, jT21, jT22;
 
-    private void Awake()
+    public override void SetBoardType(BoardTypes boardType)
     {
         distance = boardType == BoardTypes.Gen2 ? 0.0f : 0.038f;
     }
@@ -158,9 +156,3 @@ public class Pantograph : Mechanism
     }
 }
 
-[Serializable]
-public enum BoardTypes
-{
-    Gen2 = 0,
-    Gen3 = 1
-}

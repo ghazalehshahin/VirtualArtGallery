@@ -4,6 +4,8 @@ namespace Haply.hAPI
 {
     public abstract class Mechanism : MonoBehaviour
     {
+        public abstract void SetBoardType(BoardTypes boardTypes);
+        
         /// <summary>
         /// Performs the forward kinematics physics calculation of a specific physical mechanism
         /// </summary>

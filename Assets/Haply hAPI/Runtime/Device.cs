@@ -231,6 +231,7 @@ namespace Haply.hAPI
 		/// </summary>
 		public void LoadConfig()
 		{
+			mechanism.SetBoardType(configData.BoardType);
 			ActuatorRotations actuator = configData.ActuatorRotations;
 			EncoderRotations encoder = configData.EncoderRotations;
 			Offset offset = configData.Offset;

@@ -4,11 +4,18 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DeviceConfig", menuName = "ScriptableObjects/DeviceConfig", order = 1)]
 public class DeviceConfig : ScriptableObject
 {
+    public BoardTypes BoardType = BoardTypes.Gen3;
     public EncoderRotations EncoderRotations;
     public ActuatorRotations ActuatorRotations;
     public Offset Offset;
     public int Resolution;
     public bool FlippedStylusButton;
+}
+[Serializable]
+public enum BoardTypes
+{
+    Gen2 = 0,
+    Gen3 = 1
 }
 
 [Serializable]
