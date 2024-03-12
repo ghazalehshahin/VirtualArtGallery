@@ -12,12 +12,8 @@ public class EndEffectorManager : MonoBehaviour
     [SerializeField] private Device device;
     [SerializeField] private Board haplyBoard;
     [SerializeField] private Pantograph pantograph;
-    [SerializeField] private GameObject endEffectorRepresentation;
-    [Range(1,30)] [SerializeField] private float movementScalingFactor;
     [SerializeField] private GameObject endEffectorActual;
-    [SerializeField] private float proportionalGain;
-    [SerializeField] private float derivativeGain;
-    [SerializeField] private float derivativeSmoothing;
+    [Range(1,60)] [SerializeField] private float movementScalingFactor;
 
     public UnityEvent ButtonPressed;
     public UnityEvent ButtonReleased;
@@ -28,23 +24,13 @@ public class EndEffectorManager : MonoBehaviour
 
     private Task simulationLoopTask;
     private Vector3 initialOffset;
-    private Vector2 representationToActual = Vector2.zero;
     private object concurrentDataLock;
-    private bool isTouchingSurface;
+    private float[] sensors;
     private bool isButtonFlipped;
     private float[] angles;
     private float[] endEffectorPosition;
     private float[] endEffectorForce;
     private float[] torques;
-    private float[] sensors;
-    private float distX;
-    private float distY;
-    private float buffX;
-    private float buffY;
-    private float diffX;
-    private float diffY;
-    private float oldX;
-    private float oldY;
 
     #endregion
 
@@ -98,16 +84,6 @@ public class EndEffectorManager : MonoBehaviour
 
     }
 
-    private void OnEnable()
-    {
-        endEffectorRepresentation.GetComponent<EERepresentationHandler>().OnCollision += SetCollisionState;
-    }
-
-    private void OnDisable()
-    {
-        endEffectorRepresentation.GetComponent<EERepresentationHandler>().OnCollision -= SetCollisionState;
-    }
-
     private void LateUpdate()
     {
         if (!haplyBoard.HasBeenInitialized) return;
@@ -119,21 +95,16 @@ public class EndEffectorManager : MonoBehaviour
             else (isButtonFlipped ? ButtonPressed : ButtonReleased).Invoke();
             buttonEventReady = false;
         }
-
-        if (!isTouchingSurface)
-        {
-            FlushForces();
-            return;
-        }
-        CalculateForces();
     }
-
-    private void OnDestroy() => FlushForces();
-
-    private void OnApplicationQuit() => FlushForces();
 
     #endregion
 
+    public void SetForces(float xVal, float yVal)
+    {
+        endEffectorForce[0] = xVal;
+        endEffectorForce[1] = yVal;
+    }
+    
     #region Simulation
 
     private void SimulationLoop()
@@ -193,30 +164,6 @@ public class EndEffectorManager : MonoBehaviour
     }
 
     #endregion
-
-    #region ForceFeedback
-
-    private void SetCollisionState(bool state)
-    {
-        isTouchingSurface = state;
-    }
-    
-    private void CalculateForces()
-    {
-        representationToActual = endEffectorActual.transform.position - endEffectorRepresentation.transform.position;
-        distX = representationToActual.x;
-        distY = representationToActual.y;
-        buffX = (distX - oldX)/Time.deltaTime;
-        buffY = (distY - oldY)/Time.deltaTime;
-        diffX = derivativeSmoothing * diffX + (1 - derivativeSmoothing) * buffX;
-        diffY = derivativeSmoothing * diffY + (1 - derivativeSmoothing) * buffY;
-        endEffectorForce[0] = proportionalGain * distX + derivativeGain * diffX;
-        endEffectorForce[1] = proportionalGain * distY + derivativeGain * diffY;
-        oldX = distX;
-        oldY = distY;
-    }
-
-    #endregion
     
     #region Utils
     
@@ -237,12 +184,6 @@ public class EndEffectorManager : MonoBehaviour
     private static float[] DeviceToGraphics(float[] position)
     {
         return new[] {-position[0], -position[1]};
-    }
-
-    private void FlushForces()
-    {
-        endEffectorForce[0] = 0f;
-        endEffectorForce[1] = 0f;
     }
 
     #endregion

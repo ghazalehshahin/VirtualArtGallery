@@ -346,12 +346,8 @@ MonoBehaviour:
   device: {fileID: 2617779817630229611}
   haplyBoard: {fileID: 5029958026373940185}
   pantograph: {fileID: 0}
-  endEffectorRepresentation: {fileID: 6825097904289520889}
-  movementScalingFactor: 24.9
   endEffectorActual: {fileID: 7351980818206468256}
-  proportionalGain: 30
-  derivativeGain: 0.4
-  derivativeSmoothing: 0.8
+  movementScalingFactor: 24.9
   ButtonPressed:
     m_PersistentCalls:
       m_Calls:
@@ -518,6 +514,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2140115972426162744}
   - component: {fileID: 320375888971168619}
+  - component: {fileID: 7413141050182876092}
   - component: {fileID: 7413141050182876091}
   m_Layer: 0
   m_Name: EndEffectorManager
@@ -727,7 +724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caae2930a4d29934f99cada4224e6f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetPort: COM7
+  TargetPort: COM5
   baudRate: 0
   serialTimeout: 0
 --- !u!4 &5104095385293974106
@@ -800,6 +797,24 @@ MonoBehaviour:
   placingTimeInterval: 0.5
   isColliderEnabledByDefault: 0
   placingColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+--- !u!114 &7413141050182876092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2524735550073852976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b72a8fc8129b49aa9e1e8400e644febb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  endEffectorManager: {fileID: 320375888971168619}
+  endEffectorRepresentation: {fileID: 6825097904289520889}
+  endEffectorActual: {fileID: 7351980818206468256}
+  proportionalGain: 30
+  derivativeGain: 0.4
+  derivativeSmoothing: 0.8
 --- !u!114 &7472385249734871618
 MonoBehaviour:
   m_ObjectHideFlags: 0
