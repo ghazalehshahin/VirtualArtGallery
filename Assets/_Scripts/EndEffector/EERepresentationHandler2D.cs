@@ -3,8 +3,14 @@
 [RequireComponent(typeof(Rigidbody2D))]
 public class EERepresentationHandler2D : EERepresentationHandler
 {
-    private Rigidbody2D rb = new Rigidbody2D();
-    
+    #region Member Vars
+
+    private Rigidbody2D rb = new();
+
+    #endregion
+
+    #region Unity Functions
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -15,6 +21,16 @@ public class EERepresentationHandler2D : EERepresentationHandler
         NumberOfCollisions++;
         OnCollision?.Invoke(IsTouching());
     }
+    
+    private void OnCollisionExit2D()
+    {
+        NumberOfCollisions--;
+        OnCollision?.Invoke(IsTouching());
+    }
+
+    #endregion
+
+    #region Protected Functions
 
     protected override void FollowActualEndEffector()
     {
@@ -23,9 +39,5 @@ public class EERepresentationHandler2D : EERepresentationHandler
         rb.velocity = velocity;
     }
 
-    private void OnCollisionExit2D()
-    {
-        NumberOfCollisions--;
-        OnCollision?.Invoke(IsTouching());
-    }
+    #endregion
 }

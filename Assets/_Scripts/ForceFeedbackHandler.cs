@@ -1,16 +1,24 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(EndEffectorManager))]
 public class ForceFeedbackHandler : MonoBehaviour
 {
-    [SerializeField] private EndEffectorManager endEffectorManager;
+    protected bool IsTouchingSurface;
+
+    #region Sfield Vars
+
     [SerializeField] private GameObject endEffectorRepresentation;
     [SerializeField] private GameObject endEffectorActual;
     [SerializeField] private float proportionalGain;
     [SerializeField] private float derivativeGain;
     [SerializeField] private float derivativeSmoothing;
-    
-    private Vector2 representationToActual = Vector2.zero;
-    private bool isTouchingSurface;
+
+    #endregion
+
+    #region Member Vars
+
+    private EndEffectorManager endEffectorManager;
+    private Vector3 representationToActual = Vector3.zero;
     private float distX;
     private float distY;
     private float buffX;
@@ -21,7 +29,16 @@ public class ForceFeedbackHandler : MonoBehaviour
     private float oldY;
     private float xForce;
     private float yForce;
-    
+
+    #endregion
+
+    #region Unity Functions
+
+    private void Awake()
+    {
+        endEffectorManager = GetComponent<EndEffectorManager>();
+    }
+
     private void OnEnable()
     {
         endEffectorRepresentation.GetComponent<EERepresentationHandler>().OnCollision += SetCollisionState;
@@ -34,7 +51,7 @@ public class ForceFeedbackHandler : MonoBehaviour
     
     private void LateUpdate()
     {
-        if (!isTouchingSurface)
+        if (!IsTouchingSurface)
         {
             FlushForces();
             return;
@@ -45,17 +62,16 @@ public class ForceFeedbackHandler : MonoBehaviour
     private void OnDestroy() => FlushForces();
 
     private void OnApplicationQuit() => FlushForces();
-    
-    private void SetCollisionState(bool state)
-    {
-        isTouchingSurface = state;
-    }
-    
-    private void CalculateForces()
+
+    #endregion
+
+    #region Protected Functions
+
+    protected void CalculateForces(bool is3D = false)
     {
         representationToActual = endEffectorActual.transform.position - endEffectorRepresentation.transform.position;
         distX = representationToActual.x;
-        distY = representationToActual.y;
+        distY = is3D? representationToActual.z : representationToActual.y;
         buffX = (distX - oldX)/Time.deltaTime;
         buffY = (distY - oldY)/Time.deltaTime;
         diffX = derivativeSmoothing * diffX + (1 - derivativeSmoothing) * buffX;
@@ -67,8 +83,19 @@ public class ForceFeedbackHandler : MonoBehaviour
         oldY = distY;
     }
     
-    private void FlushForces()
+    protected void FlushForces()
     {
         endEffectorManager.SetForces(0, 0);
     }
+
+    #endregion
+
+    #region Private Functions
+
+    private void SetCollisionState(bool state)
+    {
+        IsTouchingSurface = state;
+    }
+
+    #endregion
 }

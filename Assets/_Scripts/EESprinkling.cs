@@ -7,7 +7,6 @@ public class EESprinkling : MonoBehaviour
     [SerializeField] private Transform placingPosition;
     [SerializeField] private Transform objectContainer;
     
-
     [Space]
     [SerializeField] private GameObject prefabCircle;
     [SerializeField] private float placingTimeInterval = 0.5f;
@@ -18,19 +17,15 @@ public class EESprinkling : MonoBehaviour
     private float lastPlacedTime;
 
     private ArrayList freshlyPlaced;
-    
 
-    // Start is called before the first frame update
     void Start()
     {
         freshlyPlaced = new ArrayList();
         lastPlacedTime = Time.time;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // If the stylus button is pressed or spacebar pressed
         if ( isPlacing || Input.GetKey(KeyCode.Space)) {
             if (Time.time - lastPlacedTime > placingTimeInterval)
             {
@@ -47,7 +42,6 @@ public class EESprinkling : MonoBehaviour
             }
         }
 
-        // If the stylus button and spacebar are released
         else if ( !isPlacing && !Input.GetKey(KeyCode.Space)) {
             if ( freshlyPlaced.Count > 0)
             {

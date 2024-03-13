@@ -1,11 +1,23 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 [RequireComponent(typeof(EndEffectorManager))]
 public class ButtonHandler : MonoBehaviour
 {
+    #region Public Vars
+
+    /// <summary>
+    /// Fires event on Stylus Button Pressed
+    /// </summary>
     public UnityEvent ButtonPressed;
+    
+    /// <summary>
+    /// Fires event on Stylus Button Released
+    /// </summary>
     public UnityEvent ButtonReleased;
+
+    #endregion
+
+    #region Member Vars
 
     private EndEffectorManager endEffectorManager;
     private bool lastButtonState;
@@ -13,6 +25,10 @@ public class ButtonHandler : MonoBehaviour
     private int buttonDebounceThreshold;
     private int buttonDebouceCounter;
     private bool isButtonFlipped;
+
+    #endregion
+
+    #region Unity Functions
 
     private void Awake()
     {
@@ -48,6 +64,10 @@ public class ButtonHandler : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Private Vars
+
     private void DoButton(float[] sensorData)
     {
         float buttonSensor = sensorData[0];
@@ -64,4 +84,6 @@ public class ButtonHandler : MonoBehaviour
         }
         else buttonDebouceCounter = 0;
     }
+
+    #endregion
 }

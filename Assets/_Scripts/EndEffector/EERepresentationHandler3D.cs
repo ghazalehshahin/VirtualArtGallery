@@ -3,7 +3,13 @@
 [RequireComponent(typeof(Rigidbody))] 
 public class EERepresentationHandler3D : EERepresentationHandler 
 {
-    private Rigidbody rb; 
+    #region Member Vars
+
+    private Rigidbody rb;
+
+    #endregion
+
+    #region Unity Functions
 
     private void Awake()
     {
@@ -16,6 +22,16 @@ public class EERepresentationHandler3D : EERepresentationHandler
         OnCollision?.Invoke(IsTouching());
     }
 
+    private void OnCollisionExit() 
+    {
+        NumberOfCollisions--;
+        OnCollision?.Invoke(IsTouching());
+    }
+
+    #endregion
+
+    #region Protected Functions
+
     protected override void FollowActualEndEffector()
     {
         Vector3 direction = EndEffectorActual.position - transform.position;
@@ -23,9 +39,5 @@ public class EERepresentationHandler3D : EERepresentationHandler
         rb.velocity = velocity;
     }
 
-    private void OnCollisionExit() 
-    {
-        NumberOfCollisions--;
-        OnCollision?.Invoke(IsTouching());
-    }
+    #endregion
 }

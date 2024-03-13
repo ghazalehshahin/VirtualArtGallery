@@ -7,13 +7,21 @@ using UnityEngine.Events;
 
 public class EndEffectorManager : MonoBehaviour
 {
+    #region Public Vars
+
+    /// <summary>
+    /// Event fired on every simulation step, with sensor data
+    /// </summary>
     public UnityAction<float[]> OnSimulationStep;
+
+    #endregion
     
     #region Sfield Vars
 
-    [SerializeField] private Device device;
     [SerializeField] private Board haplyBoard;
+    [SerializeField] private Device device;
     [SerializeField] private Pantograph pantograph;
+    [SerializeField] private bool is3D;
     [SerializeField] private GameObject endEffectorActual;
     [Range(1,60)] [SerializeField] private float movementScalingFactor;
     
@@ -21,6 +29,7 @@ public class EndEffectorManager : MonoBehaviour
 
     #region Member Vars
 
+    
     private Task simulationLoopTask;
     private Vector3 initialOffset;
     private object concurrentDataLock;
@@ -74,12 +83,6 @@ public class EndEffectorManager : MonoBehaviour
     }
 
     #endregion
-
-    public void SetForces(float xVal, float yVal)
-    {
-        endEffectorForce[0] = xVal;
-        endEffectorForce[1] = yVal;
-    }
     
     #region Simulation
 
@@ -128,7 +131,22 @@ public class EndEffectorManager : MonoBehaviour
     
     #region Utils
 
+    /// <summary>
+    /// Check if the device button is flipped or not
+    /// </summary>
+    /// <returns>boolean value of button flipped status</returns>
     public bool GetButtonState() => device.CheckButtonFlipped();
+    
+    /// <summary>
+    /// Set End Effector Forces for force feedback
+    /// </summary>
+    /// <param name="xVal">Forces in the horizontal axis</param>
+    /// <param name="yVal">Forces in the vertical axis</param>
+    public void SetForces(float xVal, float yVal)
+    {
+        endEffectorForce[0] = xVal;
+        endEffectorForce[1] = yVal;
+    }
     
     private void UpdateEndEffectorActual()
     {
@@ -138,7 +156,8 @@ public class EndEffectorManager : MonoBehaviour
         lock (concurrentDataLock)
         {
             position.x = endEffectorPosition[0];
-            position.y = endEffectorPosition[1];
+            position.y = is3D ? 0: endEffectorPosition[1];
+            position.z = is3D ? endEffectorPosition[1] : 0;
         }
         
         endEffectorTransform.position = position*movementScalingFactor + initialOffset;

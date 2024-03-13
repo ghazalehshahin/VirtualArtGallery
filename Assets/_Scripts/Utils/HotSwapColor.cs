@@ -3,21 +3,16 @@ using UnityEngine;
 public class HotSwapColor : MonoBehaviour
 {
     [SerializeField] private Color color;
-    [SerializeField] private bool hasEmission;
-    [SerializeField] private Color emissionColor;
-    [SerializeField] private float emissionIntensity;
     [SerializeField] private MeshRenderer mr;
-    [SerializeField] private SkinnedMeshRenderer smr;
     
     private MaterialPropertyBlock mpb;
-    private static readonly int ShaderProp = Shader.PropertyToID("_Color");
-    private static readonly int EmissionShaderProp = Shader.PropertyToID("_EmissionColor");
+    private static readonly int shaderProp = Shader.PropertyToID("_Color");
 
     private MaterialPropertyBlock Mpb => mpb ??= new MaterialPropertyBlock();
 
     private void OnEnable()
     {
-        ApplyColor();
+        mr = GetComponent<MeshRenderer>();
     }
 
     private void OnValidate()
@@ -25,17 +20,34 @@ public class HotSwapColor : MonoBehaviour
         ApplyColor();
     }
 
+    public void SetRandomColor()
+    {
+        float r = Random.value;
+        float g = Random.value;
+        float b = Random.value;
+        Color newColor = new(r, g, b);
+        SetColor(newColor);
+    }
+
+    public void SetValue(float factor)
+    {
+        Color currentColor = Mpb.GetColor(shaderProp);
+        Color.RGBToHSV(currentColor, out float hue, out float sat, out float value);
+        value *= factor;
+        Color targetColor = Color.HSVToRGB(hue, sat, value);
+        Mpb.SetColor(shaderProp, targetColor);
+        mr.SetPropertyBlock(Mpb);
+    }
+    
+    private void SetColor(Color newColor)
+    {
+        Mpb.SetColor(shaderProp, newColor);
+        mr.SetPropertyBlock(Mpb);
+    }
+
     private void ApplyColor()
     {
-        Mpb.SetColor(ShaderProp, color);
-        Color finalCol = emissionColor*emissionIntensity;
-        // Remember to set the emission property to enabled in the material, and the value of emission hsv to 1
-        Mpb.SetColor(EmissionShaderProp, hasEmission ? finalCol : Color.black);
-        if(mr != null){
-            mr.SetPropertyBlock(Mpb);
-        }
-        if(smr != null){
-            smr.SetPropertyBlock(Mpb);
-        }
+        Mpb.SetColor(shaderProp, color);
+        mr.SetPropertyBlock(Mpb);
     }
 }

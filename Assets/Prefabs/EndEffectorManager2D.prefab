@@ -211,12 +211,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7819b28e10adf324c992893f2e369972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  device: {fileID: 6232633370685713505}
   haplyBoard: {fileID: 3277547129901256356}
-  pantograph: {fileID: 0}
+  device: {fileID: 6232633370685713505}
+  pantograph: {fileID: 1601717238747030938}
+  is3D: 0
   endEffectorActual: {fileID: 460612506568051883}
   movementScalingFactor: 24.9
-  buttonHandler: {fileID: 8842115080780781748}
 --- !u!114 &2916144102354796030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,7 +229,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b72a8fc8129b49aa9e1e8400e644febb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endEffectorManager: {fileID: 157523032013453302}
   endEffectorRepresentation: {fileID: 6795860428021755590}
   endEffectorActual: {fileID: 460612506568051883}
   proportionalGain: 30
