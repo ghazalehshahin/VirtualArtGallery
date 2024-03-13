@@ -1,5 +1,4 @@
-﻿using System;
-using Haply.hAPI;
+﻿using Haply.hAPI;
 using UnityEngine;
 
 public class Pantograph : Mechanism

@@ -1,16 +1,23 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
-
+[RequireComponent(typeof(EndEffectorManager))]
 public class ButtonHandler : MonoBehaviour
 {
     public UnityEvent ButtonPressed;
     public UnityEvent ButtonReleased;
-    
+
+    private EndEffectorManager endEffectorManager;
     private bool lastButtonState;
     private bool buttonEventReady;
     private int buttonDebounceThreshold;
     private int buttonDebouceCounter;
     private bool isButtonFlipped;
+
+    private void Awake()
+    {
+        endEffectorManager = GetComponent<EndEffectorManager>();
+    }
 
     private void Start()
     {
@@ -20,9 +27,15 @@ public class ButtonHandler : MonoBehaviour
         ButtonReleased ??= new UnityEvent();
     }
 
-    public void SetButtonState(bool buttonState)
+    private void OnEnable()
     {
-        isButtonFlipped = buttonState;
+        isButtonFlipped = endEffectorManager.GetButtonState();
+        endEffectorManager.OnSimulationStep += DoButton;
+    }
+
+    private void OnDisable()
+    {
+        endEffectorManager.OnSimulationStep -= DoButton;
     }
 
     private void LateUpdate()
@@ -35,8 +48,9 @@ public class ButtonHandler : MonoBehaviour
         }
     }
 
-    public void DoButton(float buttonSensor)
+    private void DoButton(float[] sensorData)
     {
+        float buttonSensor = sensorData[0];
         bool buttonState = buttonSensor > 500;
 
         if (buttonState != lastButtonState)

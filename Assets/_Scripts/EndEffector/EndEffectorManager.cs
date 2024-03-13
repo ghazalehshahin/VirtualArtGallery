@@ -7,6 +7,8 @@ using UnityEngine.Events;
 
 public class EndEffectorManager : MonoBehaviour
 {
+    public UnityAction<float[]> OnSimulationStep;
+    
     #region Sfield Vars
 
     [SerializeField] private Device device;
@@ -14,7 +16,6 @@ public class EndEffectorManager : MonoBehaviour
     [SerializeField] private Pantograph pantograph;
     [SerializeField] private GameObject endEffectorActual;
     [Range(1,60)] [SerializeField] private float movementScalingFactor;
-    [SerializeField] private ButtonHandler buttonHandler;
     
     #endregion
 
@@ -60,7 +61,6 @@ public class EndEffectorManager : MonoBehaviour
         GetPosition();
         device.DeviceWriteTorques();
         initialOffset = endEffectorActual.transform.position;
-        buttonHandler.SetButtonState(device.CheckButtonFlipped());
         sensors[0] = 0f;
 
         simulationLoopTask = new Task( SimulationLoop );
@@ -86,11 +86,11 @@ public class EndEffectorManager : MonoBehaviour
     private void SimulationLoop()
     {
         TimeSpan length = TimeSpan.FromTicks( TimeSpan.TicksPerSecond / 1000 );
-        Stopwatch sw = new Stopwatch();
+        Stopwatch sw = new();
         while (true)
         {
             sw.Start();
-            Task simulationStepTask = new Task( SimulationStep );
+            Task simulationStepTask = new( SimulationStep );
             simulationStepTask.Start();
             simulationStepTask.Wait();
             while ( sw.Elapsed < length )
@@ -108,7 +108,8 @@ public class EndEffectorManager : MonoBehaviour
         {
             GetPosition();
             if (haplyBoard.DataAvailable()) device.GetSensorData(ref sensors);
-            if(buttonHandler!=null) buttonHandler.DoButton(sensors[0]);
+            // if(buttonHandler!=null) buttonHandler.DoButton(sensors[0]);
+            OnSimulationStep?.Invoke(sensors);
             device.SetDeviceTorques(endEffectorForce, torques );
             device.DeviceWriteTorques();
         }
@@ -126,6 +127,8 @@ public class EndEffectorManager : MonoBehaviour
     #endregion
     
     #region Utils
+
+    public bool GetButtonState() => device.CheckButtonFlipped();
     
     private void UpdateEndEffectorActual()
     {
