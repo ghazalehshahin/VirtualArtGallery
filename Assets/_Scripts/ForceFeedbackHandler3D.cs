@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class ForceFeedbackHandler3D : ForceFeedbackHandler
+﻿public class ForceFeedbackHandler3D : ForceFeedbackHandler
 {
     private void LateUpdate()
     {
