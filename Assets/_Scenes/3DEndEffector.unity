@@ -353,7 +353,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996432297}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: c1622edb883467843afc4212e4cc2401, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1180,6 +1180,10 @@ PrefabInstance:
     - target: {fileID: 4754079058007504466, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: m_Name
       value: EndEffectorManager3D
+      objectReference: {fileID: 0}
+    - target: {fileID: 5594588929611744768, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: TargetPort
+      value: COM7
       objectReference: {fileID: 0}
     - target: {fileID: 6402237009589695926, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: objectContainer
