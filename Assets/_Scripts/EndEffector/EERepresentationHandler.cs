@@ -47,5 +47,10 @@ public class EERepresentationHandler : MonoBehaviour
         return NumberOfCollisions > 0;
     }
 
+    protected virtual void ToggleCollider(bool state)
+    {
+        
+    }
+
     #endregion
 }

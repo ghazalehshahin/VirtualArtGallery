@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Haply.hAPI;
 using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 
 public class EndEffectorManager : MonoBehaviour
 {
@@ -156,11 +157,15 @@ public class EndEffectorManager : MonoBehaviour
         lock (concurrentDataLock)
         {
             position.x = endEffectorPosition[0];
-            position.y = is3D ? 0: endEffectorPosition[1];
-            position.z = is3D ? endEffectorPosition[1] : 0;
+            // position.y = is3D ? position.y: endEffectorPosition[1];
+            // position.z = is3D ? endEffectorPosition[1] : position.z;
+            if (is3D) position.z = endEffectorPosition[1];
+            else position.y = endEffectorPosition[1];
         }
-        
-        endEffectorTransform.position = position*movementScalingFactor + initialOffset;
+
+        Vector3 targetPosition = position * movementScalingFactor + initialOffset;
+        targetPosition = targetPosition.XZPlane(endEffectorTransform.position.y);
+        endEffectorTransform.position = targetPosition;
     }
 
     private static float[] DeviceToGraphics(float[] position)

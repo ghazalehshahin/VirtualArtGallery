@@ -483,6 +483,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2031279901}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &159450863 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+  m_PrefabInstance: {fileID: 964430773301357915}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &179121000
 GameObject:
   m_ObjectHideFlags: 0
@@ -2843,6 +2848,7 @@ GameObject:
   - component: {fileID: 996432302}
   - component: {fileID: 996432301}
   - component: {fileID: 996432300}
+  - component: {fileID: 996432303}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -2929,6 +2935,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   color: {r: 0.67456275, g: 0.8867924, b: 0.3890174, a: 1}
   mr: {fileID: 996432300}
+--- !u!64 &996432303
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 996432297}
+  m_Material: {fileID: 13400000, guid: c1622edb883467843afc4212e4cc2401, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1078732499
 GameObject:
   m_ObjectHideFlags: 0
@@ -6604,10 +6632,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf8d390c4853f864e955dc19a6dc8531, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomAmount: 0
-  cameraMoveFactor: 0
-  EndEffectorRepresentationScaleFactor: 0
-  EndEffectorRepresentationYMoveFactor: 0
+  endEffector: {fileID: 159450863}
+  eeScaleFactor: 50
+  cam: {fileID: 1078732502}
+  cameraMoveFactor: 9
   zoomInKey: 100
   zoomOutKey: 97
 --- !u!1 &2105195025
@@ -6869,6 +6897,22 @@ PrefabInstance:
       propertyPath: derivativeSmoothing
       value: 0.4
       objectReference: {fileID: 0}
+    - target: {fileID: 643392517436957824, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -6909,6 +6953,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1229940207004035222, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4754079058007504466, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: m_Name
       value: EndEffectorManager3D
@@ -6921,6 +6969,14 @@ PrefabInstance:
       propertyPath: objectContainer
       value: 
       objectReference: {fileID: 1320555761}
+    - target: {fileID: 8372122355097027994, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: ButtonPressed.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8372122355097027994, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: ButtonReleased.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8372122355097027994, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: ButtonPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -6940,6 +6996,10 @@ PrefabInstance:
     - target: {fileID: 8573649219701247921, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9043937320792110205, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6402237009589695926, guid: b37e984bac7d7b04fa451c9373c2a71a, type: 3}

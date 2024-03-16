@@ -1,22 +1,30 @@
-using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class Zoomer : MonoBehaviour
+public class Zoomer : SingletonMonoBehavior<Zoomer>
 {
-    [Range(1, 100)] [SerializeField] private float zoomAmount;
-    [SerializeField] private float cameraMoveFactor;
-    [SerializeField] private float EndEffectorRepresentationScaleFactor;
+    public UnityAction<bool> OnZoom;
+    
+    [SerializeField] private Transform endEffector;
+    [Range(1, 100)] [SerializeField] private float eeScaleFactor;
+    [SerializeField] private Transform cam;
+    [Range(1, 100)] [SerializeField] private float cameraMoveFactor;
+    
+    [Space]
     [Tooltip("Leave at 0 to keep the end effector touching the terrain")]
-    [SerializeField] private float EndEffectorRepresentationYMoveFactor;
-
     [SerializeField] private KeyCode zoomInKey;
     [SerializeField] private KeyCode zoomOutKey;
 
     private int zoomDirection = 1;
     private bool isZooming;
     private Coroutine zoomCoroutine;
-    
+
+    private void Start()
+    {
+        cam.forward = (endEffector.position - cam.position).normalized;
+    }
+
     private void OnEnable()
     {
         InputHandler.Instance.OnKeyDownEvent += OnKeyPress;
@@ -41,6 +49,7 @@ public class Zoomer : MonoBehaviour
             zoomDirection = -1;
         }
         zoomCoroutine = StartCoroutine(ZoomCoroutine());
+        OnZoom?.Invoke(true);
         isZooming = true;
     }
 
@@ -48,6 +57,7 @@ public class Zoomer : MonoBehaviour
     {
         if (!isZooming) return;
         StopCoroutine(zoomCoroutine);
+        OnZoom?.Invoke(false);
         isZooming = false;
     }
 
@@ -62,9 +72,23 @@ public class Zoomer : MonoBehaviour
 
     private void Zoom()
     {
-        //Disable End Effector Collider
-        //Move Camera 
-        //Scale End Effector
-        //Move End Effector to appropriate Y value
+        SetEndEffectorScale();
+        MoveCamera();
+    }
+
+    private void SetEndEffectorScale()
+    {
+        Vector3 localScale = endEffector.localScale;
+        float zoomFactor = zoomDirection * eeScaleFactor * 0.0001f;
+        localScale = new Vector3(
+            localScale.x + zoomFactor, 
+            localScale.y + zoomFactor, 
+            localScale.z + zoomFactor);
+        endEffector.localScale = localScale;
+    }
+
+    private void MoveCamera()
+    {
+        cam.Translate(Vector3.forward * (Mathf.Pow(cameraMoveFactor, 3) * 0.0001f * -zoomDirection));
     }
 }

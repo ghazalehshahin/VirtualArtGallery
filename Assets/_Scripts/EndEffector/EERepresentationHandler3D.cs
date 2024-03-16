@@ -6,6 +6,7 @@ public class EERepresentationHandler3D : EERepresentationHandler
     #region Member Vars
 
     private Rigidbody rb;
+    private Collider col;
 
     #endregion
 
@@ -14,6 +15,7 @@ public class EERepresentationHandler3D : EERepresentationHandler
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
     }
 
     private void OnCollisionEnter() 
@@ -39,5 +41,11 @@ public class EERepresentationHandler3D : EERepresentationHandler
         rb.velocity = velocity;
     }
 
+    protected override void ToggleCollider(bool state)
+    {
+        col.enabled = state;
+    }
+
     #endregion
+    
 }

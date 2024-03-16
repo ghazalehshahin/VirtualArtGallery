@@ -5,7 +5,8 @@ public class EERepresentationHandler2D : EERepresentationHandler
 {
     #region Member Vars
 
-    private Rigidbody2D rb = new();
+    private Rigidbody2D rb2D;
+    private Collider2D col2D;
 
     #endregion
 
@@ -13,9 +14,10 @@ public class EERepresentationHandler2D : EERepresentationHandler
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        rb2D = GetComponent<Rigidbody2D>();
+        col2D = GetComponent<Collider2D>();
     }
-    
+
     private void OnCollisionEnter2D()
     {
         NumberOfCollisions++;
@@ -36,7 +38,12 @@ public class EERepresentationHandler2D : EERepresentationHandler
     {
         Vector3 direction = EndEffectorActual.position - transform.position;
         Vector3 velocity = (direction / Time.fixedDeltaTime);
-        rb.velocity = velocity;
+        rb2D.velocity = velocity;
+    }
+    
+    protected override void ToggleCollider(bool state)
+    {
+        col2D.enabled = state;
     }
 
     #endregion
