@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -45,11 +46,6 @@ public class EERepresentationHandler : MonoBehaviour
     protected bool IsTouching()
     {
         return NumberOfCollisions > 0;
-    }
-
-    protected virtual void ToggleCollider(bool state)
-    {
-        
     }
 
     #endregion

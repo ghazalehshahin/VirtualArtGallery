@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43a5c2b4f5e5442b9c7b8a697d064bf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  KeysToWatch: 6100000064000000
+  KeysToWatch: 610000006400000071000000650000007700000073000000
 --- !u!1 &88337969
 GameObject:
   m_ObjectHideFlags: 0
@@ -6636,8 +6636,8 @@ MonoBehaviour:
   eeScaleFactor: 50
   cam: {fileID: 1078732502}
   cameraMoveFactor: 9
-  zoomInKey: 100
-  zoomOutKey: 97
+  zoomInKey: 113
+  zoomOutKey: 101
 --- !u!1 &2105195025
 GameObject:
   m_ObjectHideFlags: 0

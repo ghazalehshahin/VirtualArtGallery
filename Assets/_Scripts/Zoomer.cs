@@ -19,11 +19,7 @@ public class Zoomer : SingletonMonoBehavior<Zoomer>
     private int zoomDirection = 1;
     private bool isZooming;
     private Coroutine zoomCoroutine;
-
-    private void Start()
-    {
-        cam.forward = (endEffector.position - cam.position).normalized;
-    }
+    
 
     private void OnEnable()
     {
@@ -48,6 +44,7 @@ public class Zoomer : SingletonMonoBehavior<Zoomer>
         {
             zoomDirection = -1;
         }
+        else return;
         zoomCoroutine = StartCoroutine(ZoomCoroutine());
         OnZoom?.Invoke(true);
         isZooming = true;

@@ -29,6 +29,16 @@ public class EERepresentationHandler3D : EERepresentationHandler
         NumberOfCollisions--;
         OnCollision?.Invoke(IsTouching());
     }
+    
+    private void OnEnable()
+    {
+        if (Zoomer.Instance != null) Zoomer.Instance.OnZoom += ToggleCollider;
+    }
+
+    private void OnDisable()
+    {
+        if (Zoomer.Instance != null) Zoomer.Instance.OnZoom -= ToggleCollider;
+    }
 
     #endregion
 
@@ -41,9 +51,9 @@ public class EERepresentationHandler3D : EERepresentationHandler
         rb.velocity = velocity;
     }
 
-    protected override void ToggleCollider(bool state)
+    private void ToggleCollider(bool state)
     {
-        col.enabled = state;
+        col.enabled = !state;
     }
 
     #endregion
