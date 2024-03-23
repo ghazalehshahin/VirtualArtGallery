@@ -16,21 +16,22 @@ public class EndEffectorManager : MonoBehaviour
     public UnityAction<float[]> OnSimulationStep;
 
     #endregion
-    
+
     #region Sfield Vars
 
     [SerializeField] private Board haplyBoard;
     [SerializeField] private Device device;
     [SerializeField] private Pantograph pantograph;
     [SerializeField] private bool is3D;
+    [SerializeField] private bool isVertical;
     [SerializeField] private GameObject endEffectorActual;
-    [Range(1,60)] [SerializeField] private float movementScalingFactor;
-    
+    [Range(1, 60)][SerializeField] private float movementScalingFactor;
+
     #endregion
 
     #region Member Vars
 
-    
+
     private Task simulationLoopTask;
     private Vector3 initialOffset;
     private object concurrentDataLock;
@@ -73,7 +74,7 @@ public class EndEffectorManager : MonoBehaviour
         initialOffset = endEffectorActual.transform.position;
         sensors[0] = 0f;
 
-        simulationLoopTask = new Task( SimulationLoop );
+        simulationLoopTask = new Task(SimulationLoop);
         simulationLoopTask.Start();
     }
 
@@ -84,20 +85,20 @@ public class EndEffectorManager : MonoBehaviour
     }
 
     #endregion
-    
+
     #region Simulation
 
     private void SimulationLoop()
     {
-        TimeSpan length = TimeSpan.FromTicks( TimeSpan.TicksPerSecond / 1000 );
+        TimeSpan length = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 1000);
         Stopwatch sw = new();
         while (true)
         {
             sw.Start();
-            Task simulationStepTask = new( SimulationStep );
+            Task simulationStepTask = new(SimulationStep);
             simulationStepTask.Start();
             simulationStepTask.Wait();
-            while ( sw.Elapsed < length )
+            while (sw.Elapsed < length)
             {
                 //limits speed of simulation
             }
@@ -105,7 +106,7 @@ public class EndEffectorManager : MonoBehaviour
             sw.Reset();
         }
     }
-    
+
     private void SimulationStep()
     {
         lock (concurrentDataLock)
@@ -114,7 +115,7 @@ public class EndEffectorManager : MonoBehaviour
             if (haplyBoard.DataAvailable()) device.GetSensorData(ref sensors);
             // if(buttonHandler!=null) buttonHandler.DoButton(sensors[0]);
             OnSimulationStep?.Invoke(sensors);
-            device.SetDeviceTorques(endEffectorForce, torques );
+            device.SetDeviceTorques(endEffectorForce, torques);
             device.DeviceWriteTorques();
         }
     }
@@ -129,7 +130,7 @@ public class EndEffectorManager : MonoBehaviour
     }
 
     #endregion
-    
+
     #region Utils
 
     /// <summary>
@@ -137,7 +138,7 @@ public class EndEffectorManager : MonoBehaviour
     /// </summary>
     /// <returns>boolean value of button flipped status</returns>
     public bool GetButtonState() => device.CheckButtonFlipped();
-    
+
     /// <summary>
     /// Set End Effector Forces for force feedback
     /// </summary>
@@ -148,7 +149,7 @@ public class EndEffectorManager : MonoBehaviour
         endEffectorForce[0] = xVal;
         endEffectorForce[1] = yVal;
     }
-    
+
     private void UpdateEndEffectorActual()
     {
         Transform endEffectorTransform = endEffectorActual.transform;
@@ -159,18 +160,36 @@ public class EndEffectorManager : MonoBehaviour
             position.x = endEffectorPosition[0];
             // position.y = is3D ? position.y: endEffectorPosition[1];
             // position.z = is3D ? endEffectorPosition[1] : position.z;
-            if (is3D) position.z = endEffectorPosition[1];
+            if (is3D & isVertical)
+            {
+                position.y = endEffectorPosition[1];
+                position.z = initialOffset.z;
+            }
+            else if (is3D & !isVertical)
+            {
+                position.z = endEffectorPosition[1];
+            }
             else position.y = endEffectorPosition[1];
         }
 
         Vector3 targetPosition = position * movementScalingFactor + initialOffset;
-        targetPosition = targetPosition.XZPlane(endEffectorTransform.position.y);
+
+        if (is3D & isVertical)
+        {
+            targetPosition = targetPosition.XYPlane();
+            targetPosition.z = initialOffset.z;
+        }
+        else
+        {
+            targetPosition = targetPosition.XZPlane(targetPosition.y);
+        }
+
         endEffectorTransform.position = targetPosition;
     }
 
     private static float[] DeviceToGraphics(float[] position)
     {
-        return new[] {-position[0], -position[1]};
+        return new[] { -position[0], -position[1] };
     }
 
     #endregion
