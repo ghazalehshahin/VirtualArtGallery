@@ -117,10 +117,11 @@ public class TerrainScript : MonoBehaviour
                                             terrainHeight / terrainData.size.y, 
                                             ((float)terrainZ * terrainData.heightmapScale.z + Random.Range(-offsetRadius, offsetRadius)) / terrainData.size.z
                                           );
-            Debug.Log(newTree.position.x);
+            newTree.rotation = Random.Range(0f, Mathf.PI*2);
             newTree.prototypeIndex = treePrototypeIndex;
-            newTree.widthScale = 2;
-            newTree.heightScale = 2;
+            float randomScale = Random.Range(0.5f, 2f);
+            newTree.widthScale = randomScale;
+            newTree.heightScale = randomScale;
             newTree.color = Color.white;
             newTree.lightmapColor = Color.white;
 
