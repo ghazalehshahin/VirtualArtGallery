@@ -8,13 +8,17 @@ public class TerrainScript : MonoBehaviour
 {
 
     [SerializeField] private Terrain terrain;
-    [SerializeField] private int terrainLayerIndex; // 0 for dirt, 1 for grass
-    [SerializeField] private float brushSize = 5f;
-    [SerializeField] private float brushStrength = 1f;
+    
+    [SerializeField] private float brushRadius = 1f;
     [SerializeField] private AnimationCurve brushCurve;
+    [Range(0.1f, 5f)][SerializeField] private float scaleLowerBound;
+    [Range(0f, 5f)][SerializeField] private float scaleRange;
 
+    [SerializeField] private int terrainLayerIndex; // 0 for dirt, 1 for grass, 2 sand...
+    [SerializeField] private float brushStrength = 1f;
+    
     [SerializeField] private int treePrototypeIndex;
-    [SerializeField] private float offsetRadius = 0.75f;
+    [SerializeField] private int numberOfTreePlaced = 1;
 
 
     void Start()
@@ -49,22 +53,21 @@ public class TerrainScript : MonoBehaviour
         int mapX = (int)(normalizedPos.x * terrainData.alphamapWidth);
         int mapY = (int)(normalizedPos.y * terrainData.alphamapHeight);
         
-
         // Apply the brush effect
-        int brushRadius = Mathf.RoundToInt(brushSize * terrainData.alphamapWidth / terrainData.size.x);
-        int startX = Mathf.Max(0, mapX - brushRadius);
-        int startY = Mathf.Max(0, mapY - brushRadius);
-        int endX = Mathf.Min(terrainData.alphamapWidth, mapX + brushRadius);
-        int endY = Mathf.Min(terrainData.alphamapHeight, mapY + brushRadius);
+        int brush_radius = Mathf.RoundToInt(brushRadius * terrainData.alphamapWidth / terrainData.size.x);
+        int startX = Mathf.Max(0, mapX - brush_radius);
+        int startY = Mathf.Max(0, mapY - brush_radius);
+        int endX = Mathf.Min(terrainData.alphamapWidth, mapX + brush_radius);
+        int endY = Mathf.Min(terrainData.alphamapHeight, mapY + brush_radius);
 
-        float[,,] splatmapData = terrainData.GetAlphamaps(startX, startY, brushRadius*2, brushRadius*2);
+        float[,,] splatmapData = terrainData.GetAlphamaps(startX, startY, brush_radius * 2, brush_radius * 2);
 
         for (int y = startY; y < endY; y++)
         {
             for (int x = startX; x < endX; x++)
             {
                 float distance = Vector2.Distance(new Vector2(x, y), new Vector2(mapX, mapY));
-                float falloff = Mathf.Clamp01(brushCurve.Evaluate(1 - (distance / brushRadius)));
+                float falloff = Mathf.Clamp01(brushCurve.Evaluate(1 - (distance / brush_radius)));
 
                 // For each texture layer of the terrain
                 for (int i = 0; i < terrainData.alphamapLayers; i++)
@@ -113,13 +116,13 @@ public class TerrainScript : MonoBehaviour
 
             // Create a new TreeInstance
             TreeInstance newTree = new TreeInstance();
-            newTree.position = new Vector3(((float)terrainX * terrainData.heightmapScale.x + Random.Range(-offsetRadius, offsetRadius)) / terrainData.size.x,
+            newTree.position = new Vector3(((float)terrainX * terrainData.heightmapScale.x + Random.Range(-brushRadius, brushRadius)) / terrainData.size.x,
                                             terrainHeight / terrainData.size.y, 
-                                            ((float)terrainZ * terrainData.heightmapScale.z + Random.Range(-offsetRadius, offsetRadius)) / terrainData.size.z
+                                            ((float)terrainZ * terrainData.heightmapScale.z + Random.Range(-brushRadius, brushRadius)) / terrainData.size.z
                                           );
             newTree.rotation = Random.Range(0f, Mathf.PI*2);
             newTree.prototypeIndex = treePrototypeIndex;
-            float randomScale = Random.Range(0.5f, 2f);
+            float randomScale = Random.Range(scaleLowerBound, scaleLowerBound+scaleRange);
             newTree.widthScale = randomScale;
             newTree.heightScale = randomScale;
             newTree.color = Color.white;
